@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Add Question</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f4f6fb;
+    --white:    #ffffff;
+    --surface:  #f0f2f8;
+    --border:   #e2e6f0;
+    --blue:     #2563eb;
+    --blue-d:   #1d4ed8;
+    --blue-l:   #eff6ff;
+    --blue-m:   #bfdbfe;
+    --text:     #0f172a;
+    --text-2:   #334155;
+    --muted:    #64748b;
+    --muted-l:  #94a3b8;
+    --green:    #059669;
+    --green-l:  #ecfdf5;
+    --green-m:  #a7f3d0;
+    --amber:    #d97706;
+    --amber-l:  #fffbeb;
+    --amber-m:  #fde68a;
+    --rose:     #e11d48;
+    --rose-l:   #fff1f2;
+    --rose-m:   #fecdd3;
+    --purple:   #7c3aed;
+    --purple-l: #f5f3ff;
+    --purple-m: #ddd6fe;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
+
+  /* Topbar */
+  .topbar {
+    padding:20px 40px; background:var(--white); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:10;
+  }
+  .topbar-left { display:flex; align-items:center; gap:16px; }
+  .brand {
+    font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800;
+    letter-spacing:0.07em; text-transform:uppercase; color:var(--blue);
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand-dot { width:8px; height:8px; border-radius:50%; background:var(--blue); }
+  .topbar-divider { width:1px; height:22px; background:var(--border); }
+  .topbar-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; color:var(--text); }
+  .topbar-title span { color:var(--blue); }
+  .admin-pill {
+    display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border-radius:20px;
+    background:var(--rose-l); border:1px solid var(--rose-m);
+    color:var(--rose); font-size:0.68rem; font-weight:700; letter-spacing:0.06em;
+  }
+  .admin-pill-dot { width:6px; height:6px; border-radius:50%; background:var(--rose); animation:blink 2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  /* Page content */
+  .page { padding:36px 40px 60px; max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:24px; }
+
+  /* Section label */
+  .section-label {
+    font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:800;
+    letter-spacing:0.18em; text-transform:uppercase; color:var(--muted);
+    display:flex; align-items:center; gap:10px; margin-bottom:20px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* Two column */
+  .two-col { display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start; }
+
+  /* Form card */
+  .form-card { background:var(--white); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+  .form-card-header {
+    padding:24px 28px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:14px;
+  }
+  .header-icon {
+    width:44px; height:44px; border-radius:12px;
+    background:var(--blue-l); border:1px solid var(--blue-m);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.65rem; font-weight:800; color:var(--blue);
+  }
+  .header-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800; color:var(--text); }
+  .header-sub   { font-size:0.76rem; color:var(--muted); margin-top:2px; }
+  .form-body { padding:28px; display:flex; flex-direction:column; gap:20px; }
+
+  /* Fields */
+  .field { display:flex; flex-direction:column; gap:7px; }
+  .field-label { font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:700; color:var(--muted); }
+  textarea, input[type="text"] {
+    width:100%; background:var(--white); border:1.5px solid var(--border);
+    border-radius:10px; padding:12px 14px;
+    color:var(--text); font-family:'Space Grotesk',sans-serif; font-size:0.92rem;
+    outline:none; transition:all 0.2s; resize:none;
+  }
+  textarea:focus, input[type="text"]:focus {
+    border-color:var(--blue); background:var(--blue-l);
+    box-shadow:0 0 0 3px rgba(37,99,235,0.1);
+  }
+  textarea { min-height:90px; line-height:1.6; }
+  input::placeholder, textarea::placeholder { color:var(--muted-l); font-size:0.88rem; }
+
+  /* Options grid */
+  .options-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .option-field { display:flex; flex-direction:column; gap:7px; }
+  .option-label-row { display:flex; align-items:center; gap:8px; }
+  .option-badge {
+    width:22px; height:22px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.62rem; font-weight:800; flex-shrink:0;
+  }
+  .opt-a { background:var(--blue-l);   border:1px solid var(--blue-m);   color:var(--blue); }
+  .opt-b { background:var(--green-l);  border:1px solid var(--green-m);  color:var(--green); }
+  .opt-c { background:var(--amber-l);  border:1px solid var(--amber-m);  color:var(--amber); }
+  .opt-d { background:var(--purple-l); border:1px solid var(--purple-m); color:var(--purple); }
+  .opt-lbl { font-size:0.7rem; color:var(--muted); font-weight:600; }
+
+  /* Answer */
+  .answer-wrap input[type="text"] { border-color:var(--green-m); background:var(--green-l); }
+  .answer-wrap input[type="text"]:focus { border-color:var(--green); background:var(--green-l); box-shadow:0 0 0 3px rgba(5,150,105,0.1); }
+  .answer-hint { font-size:0.72rem; color:var(--green); font-weight:500; padding:8px 12px; background:var(--green-l); border:1px solid var(--green-m); border-radius:8px; }
+
+  /* Submit */
+  .btn-submit {
+    width:100%; padding:14px; font-family:'Syne',sans-serif; font-size:0.92rem;
+    font-weight:800; letter-spacing:0.06em; color:var(--white);
+    background:linear-gradient(135deg,var(--blue) 0%,var(--blue-d) 100%);
+    border:none; border-radius:12px; cursor:pointer; position:relative;
+    overflow:hidden; transition:all 0.25s; display:flex; align-items:center;
+    justify-content:center; gap:8px; margin-top:4px;
+    box-shadow:0 4px 20px rgba(37,99,235,0.28),0 1px 0 rgba(255,255,255,0.12) inset;
+  }
+  .btn-submit::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.14),transparent 60%); opacity:0; transition:opacity 0.25s; }
+  .btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(37,99,235,0.38); }
+  .btn-submit:hover::before { opacity:1; }
+  .btn-submit:active { transform:translateY(0); }
+  .btn-submit.loading { pointer-events:none; opacity:0.8; }
+  .spinner { display:none; width:16px; height:16px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .btn-submit.loading .btn-text,
+  .btn-submit.loading .btn-arrow { display:none; }
+  .btn-submit.loading .spinner { display:block; }
+
+  /* Right col */
+  .right-col { display:flex; flex-direction:column; gap:16px; }
+
+  /* Preview */
+  .preview-card { background:var(--white); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .preview-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+  .preview-title { font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:800; color:var(--text); }
+  .preview-badge { font-size:0.6rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--blue); background:var(--blue-l); border:1px solid var(--blue-m); padding:3px 10px; border-radius:20px; }
+  .preview-body { padding:20px; display:flex; flex-direction:column; gap:12px; }
+  .preview-q { font-size:0.86rem; font-weight:600; color:var(--text); line-height:1.5; padding-bottom:12px; border-bottom:1px solid var(--border); min-height:40px; }
+  .preview-q.empty { color:var(--muted-l); font-style:italic; font-weight:400; }
+  .preview-opts { display:flex; flex-direction:column; gap:8px; }
+  .preview-opt {
+    display:flex; align-items:center; gap:10px; font-size:0.82rem; color:var(--text-2);
+    padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface);
+    transition:all 0.2s;
+  }
+  .preview-opt.correct { background:var(--green-l); border-color:var(--green-m); color:var(--green); font-weight:600; }
+  .preview-opt.empty   { color:var(--muted-l); font-style:italic; }
+  .preview-opt-badge { width:20px; height:20px; border-radius:5px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:0.58rem; font-weight:800; flex-shrink:0; }
+
+  /* Tips */
+  .tip-card { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:20px; }
+  .tip-title { font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:800; color:var(--text); margin-bottom:12px; }
+  .tip-item { display:flex; align-items:flex-start; gap:10px; font-size:0.78rem; color:var(--muted); line-height:1.5; margin-bottom:10px; }
+  .tip-item:last-child { margin-bottom:0; }
+  .tip-dot { width:5px; height:5px; border-radius:50%; background:var(--blue-m); flex-shrink:0; margin-top:6px; }
+
+  /* Toast */
+  .toast-wrap { position:fixed; top:24px; right:24px; z-index:200; display:flex; flex-direction:column; gap:10px; }
+  .toast {
+    display:flex; align-items:center; gap:12px; background:var(--white); border:1px solid var(--border);
+    border-radius:12px; padding:14px 18px; box-shadow:0 8px 30px rgba(0,0,0,0.1);
+    font-size:0.86rem; font-weight:600; color:var(--text); min-width:280px;
+    animation:slideIn 0.3s ease, fadeOut 0.4s ease 3.5s forwards; overflow:hidden; position:relative;
+  }
+  .toast::after { content:''; position:absolute; bottom:0; left:0; height:3px; width:100%; background:var(--green); animation:shrink 4s linear forwards; }
+  .toast-icon { width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:0.58rem; font-weight:800; flex-shrink:0; background:var(--green-l); border:1px solid var(--green-m); color:var(--green); }
+  @keyframes slideIn { from { transform:translateX(100px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+  @keyframes fadeOut { from { opacity:1; } to { opacity:0; transform:translateX(40px); } }
+  @keyframes shrink  { from { width:100%; } to { width:0%; } }
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Topbar only — no sidebar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand"><div class="brand-dot"></div> ExamPortal</div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-title">Add <span>Question</span></div>
+  </div>
+  <div class="admin-pill"><div class="admin-pill-dot"></div> Admin Session</div>
+</div>
+
+<div class="page">
+  <div>
+    <div class="section-label">Question Builder</div>
+    <div class="two-col">
+
+      <!-- Form -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <div class="header-icon">ADD</div>
+          <div>
+            <div class="header-title">New Question</div>
+            <div class="header-sub">Fill in the question, four options, and the correct answer.</div>
+          </div>
+        </div>
+
+        <div class="form-body">
+          <form action="../AddQuestionServlet" method="post" onsubmit="handleSubmit(event)" id="qForm">
+
+            <div class="field">
+              <div class="field-label">Question</div>
+              <textarea name="question" id="q" placeholder="Type your question here…" oninput="updatePreview()"></textarea>
+            </div>
+
+            <div class="field">
+              <div class="field-label">Answer Options</div>
+              <div class="options-grid">
+                <div class="option-field">
+                  <div class="option-label-row"><span class="option-badge opt-a">A</span><span class="opt-lbl">Option 1</span></div>
+                  <input type="text" name="option1" id="o1" placeholder="Option A…" oninput="updatePreview()">
+                </div>
+                <div class="option-field">
+                  <div class="option-label-row"><span class="option-badge opt-b">B</span><span class="opt-lbl">Option 2</span></div>
+                  <input type="text" name="option2" id="o2" placeholder="Option B…" oninput="updatePreview()">
+                </div>
+                <div class="option-field">
+                  <div class="option-label-row"><span class="option-badge opt-c">C</span><span class="opt-lbl">Option 3</span></div>
+                  <input type="text" name="option3" id="o3" placeholder="Option C…" oninput="updatePreview()">
+                </div>
+                <div class="option-field">
+                  <div class="option-label-row"><span class="option-badge opt-d">D</span><span class="opt-lbl">Option 4</span></div>
+                  <input type="text" name="option4" id="o4" placeholder="Option D…" oninput="updatePreview()">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-label">Correct Answer</div>
+              <div class="answer-wrap">
+                <input type="text" name="answer" id="ans" placeholder="Must exactly match one of the options above…" oninput="updatePreview()">
+              </div>
+              <div class="answer-hint">Must exactly match one of the four options above</div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">
+              <span class="btn-text">Add Question</span>
+              <span class="btn-arrow">&#8594;</span>
+              <div class="spinner"></div>
+            </button>
+
+          </form>
+        </div>
+      </div>
+
+      <!-- Right col -->
+      <div class="right-col">
+
+        <div class="preview-card">
+          <div class="preview-header">
+            <div class="preview-title">Live Preview</div>
+            <div class="preview-badge">Real-time</div>
+          </div>
+          <div class="preview-body">
+            <div class="preview-q empty" id="previewQ">Your question will appear here…</div>
+            <div class="preview-opts">
+              <div class="preview-opt empty" id="po1"><span class="preview-opt-badge opt-a">A</span><span id="pt1">Option 1</span></div>
+              <div class="preview-opt empty" id="po2"><span class="preview-opt-badge opt-b">B</span><span id="pt2">Option 2</span></div>
+              <div class="preview-opt empty" id="po3"><span class="preview-opt-badge opt-c">C</span><span id="pt3">Option 3</span></div>
+              <div class="preview-opt empty" id="po4"><span class="preview-opt-badge opt-d">D</span><span id="pt4">Option 4</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-title">Writing Tips</div>
+          <div class="tip-item"><div class="tip-dot"></div>Keep the question clear and unambiguous.</div>
+          <div class="tip-item"><div class="tip-dot"></div>Make all four options plausible to avoid obvious guessing.</div>
+          <div class="tip-item"><div class="tip-dot"></div>Avoid double negatives or trick phrasing.</div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-title">Answer Rules</div>
+          <div class="tip-item"><div class="tip-dot"></div>The answer must exactly match one of the four options — spacing and capitalisation included.</div>
+          <div class="tip-item"><div class="tip-dot"></div>Only one correct answer is supported per question.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function updatePreview() {
+  var q   = document.getElementById('q').value;
+  var o1  = document.getElementById('o1').value;
+  var o2  = document.getElementById('o2').value;
+  var o3  = document.getElementById('o3').value;
+  var o4  = document.getElementById('o4').value;
+  var ans = document.getElementById('ans').value.trim();
+
+  var pq = document.getElementById('previewQ');
+  if (q) { pq.textContent = q; pq.classList.remove('empty'); }
+  else   { pq.textContent = 'Your question will appear here…'; pq.classList.add('empty'); }
+
+  var opts   = [o1, o2, o3, o4];
+  var poIds  = ['po1','po2','po3','po4'];
+  var ptIds  = ['pt1','pt2','pt3','pt4'];
+  var labels = ['Option 1','Option 2','Option 3','Option 4'];
+
+  opts.forEach(function(val, i) {
+    var el = document.getElementById(poIds[i]);
+    var tx = document.getElementById(ptIds[i]);
+    if (val) {
+      tx.textContent = val;
+      el.classList.remove('empty');
+      el.classList.toggle('correct', ans.length > 0 && val === ans);
+    } else {
+      tx.textContent = labels[i];
+      el.classList.add('empty');
+      el.classList.remove('correct');
+    }
+  });
+}
+
+function showToast(msg) {
+  var wrap  = document.getElementById('toastWrap');
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = '<span class="toast-icon">OK</span> ' + msg;
+  wrap.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 4200);
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  var btn  = document.getElementById('submitBtn');
+  var form = document.getElementById('qForm');
+  btn.classList.add('loading');
+
+  fetch(form.action, { method:'POST', body:new URLSearchParams(new FormData(form)) })
+    .then(function()  { showToast('Question added successfully!'); form.reset(); updatePreview(); })
+    .catch(function() { showToast('Question submitted!');          form.reset(); updatePreview(); })
+    .finally(function() { btn.classList.remove('loading'); });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Online Exam Portal</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --grad: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  --grad-accent: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --bg: #0a0e1a;
+  --surface: #141827;
+  --border: rgba(59, 130, 246, 0.12);
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+}
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; overflow: hidden; }
+
+/* Ambient orbs */
+.orb { position: fixed; border-radius: 50%; filter: blur(110px); pointer-events: none; z-index: 0; animation: drift 14s ease-in-out infinite; }
+.orb-1 { width: 550px; height: 550px; background: rgba(59, 130, 246, 0.12); top: -180px; right: -100px; }
+.orb-2 { width: 480px; height: 480px; background: rgba(6, 182, 212, 0.1); bottom: -120px; left: -80px; animation-delay: -6s; }
+.orb-3 { width: 380px; height: 380px; background: rgba(16, 185, 129, 0.08); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -9s; }
+@keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-20px) scale(1.05)} }
+
+/* Grid */
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(rgba(59,130,246,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(59,130,246,0.025) 1px,transparent 1px);
+  background-size: 80px 80px; pointer-events: none; z-index: 0;
+}
+
+.page { position: relative; z-index: 1; height: 100vh; display: grid; grid-template-rows: auto 1fr auto; }
+
+/* ══════════════════════════════
+   HEADER
+══════════════════════════════ */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 48px; border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px); background: rgba(10,14,26,0.85);
+  animation: fadeDown 0.5s ease both;
+}
+
+.logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.logo-icon {
+  width: 40px; height: 40px; background: var(--grad); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1rem; color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  box-shadow: 0 6px 20px rgba(59,130,246,0.3);
+}
+.logo-text { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--text); }
+
+.tagline {
+  font-size: 0.78rem; color: var(--muted); letter-spacing: 0.08em;
+  text-transform: uppercase; font-weight: 500;
+  background: rgba(59,130,246,0.06); border: 1px solid var(--border);
+  padding: 6px 14px; border-radius: 30px;
+}
+
+/* ══════════════════════════════
+   MAIN
+══════════════════════════════ */
+.main {
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 48px; position: relative;
+}
+
+.content {
+  max-width: 1100px; width: 100%;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center;
+}
+
+/* ── LEFT ── */
+.left { animation: fadeUp 0.6s 0.1s ease both; }
+
+h1 {
+  font-weight: 800; font-size: clamp(2.5rem, 5vw, 3.5rem);
+  line-height: 1.1; letter-spacing: -0.03em; margin-bottom: 18px;
+}
+.gradient-text {
+  background: var(--grad);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.desc {
+  font-size: 1.05rem; line-height: 1.65; color: var(--muted);
+  margin-bottom: 36px; max-width: 480px; font-weight: 300;
+}
+
+/* CTA Cards */
+.cta-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.cta-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 20px; text-decoration: none; transition: all 0.25s;
+  position: relative; overflow: hidden; cursor: pointer;
+}
+.cta-card::before {
+  content: ''; position: absolute; inset: 0; background: var(--grad);
+  opacity: 0; transition: opacity 0.25s;
+}
+.cta-card:hover::before { opacity: 0.05; }
+.cta-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59,130,246,0.3);
+  box-shadow: 0 10px 36px rgba(59,130,246,0.15);
+}
+
+.cta-icon {
+  width: 44px; height: 44px; border-radius: 10px; background: var(--grad);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px; position: relative; z-index: 1;
+}
+.cta-title {
+  font-weight: 700; font-size: 1.02rem; color: var(--text);
+  margin-bottom: 5px; position: relative; z-index: 1;
+}
+.cta-desc {
+  font-size: 0.82rem; color: var(--muted); line-height: 1.5;
+  position: relative; z-index: 1;
+}
+
+.cta-card.admin { grid-column: 1 / -1; }
+.cta-card.admin .cta-icon { background: var(--grad-accent); }
+
+/* ── RIGHT ── */
+.right {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.visual { width: 100%; max-width: 460px; aspect-ratio: 1; position: relative; }
+
+/* Floating exam cards */
+.exam-card {
+  position: absolute; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; backdrop-filter: blur(12px);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.3);
+  animation: float 5s ease-in-out infinite;
+}
+.card-1 { top: 8%; left: 8%; width: 170px; }
+.card-2 { top: 42%; right: 5%; width: 190px; animation-delay: -2s; }
+.card-3 { bottom: 12%; left: 12%; width: 160px; animation-delay: -3.5s; }
+
+@keyframes float {
+  0%,100%{ transform: translateY(0) rotate(0deg); }
+  50%{ transform: translateY(-16px) rotate(1.5deg); }
+}
+
+.card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.card-icon {
+  width: 34px; height: 34px; border-radius: 8px; background: var(--grad);
+  display: flex; align-items: center; justify-content: center; font-size: 0.95rem; flex-shrink: 0;
+}
+.card-title { font-size: 0.84rem; font-weight: 700; color: var(--text); line-height: 1.3; }
+.card-meta {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.7rem; color: var(--muted); margin-bottom: 9px;
+}
+.card-progress {
+  height: 4px; background: var(--bg); border-radius: 4px;
+  overflow: hidden; position: relative;
+}
+.card-fill {
+  height: 100%; background: linear-gradient(90deg, var(--cyan), var(--emerald));
+  border-radius: 4px; animation: progressGrow 3s ease-in-out infinite;
+}
+@keyframes progressGrow { 0%,100%{width:45%} 50%{width:75%} }
+
+/* Center glow */
+.glow {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 300px; height: 300px; border-radius: 50%;
+  background: conic-gradient(from 0deg, #3b82f6, #06b6d4, #10b981, #3b82f6);
+  opacity: 0.07; filter: blur(40px);
+  animation: rotate 18s linear infinite;
+}
+@keyframes rotate { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+
+/* ══════════════════════════════
+   FOOTER
+══════════════════════════════ */
+.footer {
+  border-top: 1px solid var(--border); padding: 16px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  animation: fadeUp 0.6s 0.3s ease both; flex-wrap: wrap; gap: 12px;
+}
+.footer-copy { font-size: 0.8rem; color: var(--muted); }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+.footer-links a:hover { color: var(--text); }
+
+/* Stats */
+.stats {
+  display: flex; gap: 28px; margin-top: 32px;
+  padding-top: 24px; border-top: 1px solid var(--border);
+}
+.stat { display: flex; flex-direction: column; gap: 3px; }
+.stat-val {
+  font-weight: 800; font-size: 1.6rem;
+  background: linear-gradient(135deg, var(--cyan), var(--emerald));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.75rem; color: var(--muted); letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Animations */
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
+
+/* Responsive */
+@media(max-width:1024px) {
+  .content { grid-template-columns: 1fr; gap: 40px; }
+  .right { order: -1; max-width: 350px; margin: 0 auto; }
+  .stats { flex-wrap: wrap; gap: 20px; }
+}
+
+@media(max-width:768px) {
+  .header, .footer { padding: 14px 24px; }
+  .main { padding: 30px 24px; }
+  h1 { font-size: 2.2rem; }
+  .tagline { display: none; }
+}
+
+@media(max-width:640px) {
+  .cta-grid { grid-template-columns: 1fr; }
+  .cta-card.admin { grid-column: 1; }
+  .visual { max-width: 280px; }
+  .card-1, .card-2, .card-3 { transform: scale(0.85); }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="page">
+
+  <!-- Header -->
+  <header class="header">
+    <a href="#" class="logo">
+      <div class="logo-icon">EP</div>
+      <span class="logo-text">Exam Portal</span>
+    </a>
+    <div class="tagline">Secure Online Examinations</div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="content">
+
+      <!-- Left -->
+      <div class="left">
+        <h1>Take Your Exams<br><span class="gradient-text">Anywhere, Anytime</span></h1>
+        <p class="desc">A secure, modern examination platform built for students and institutions. Schedule exams, track progress, and get instant results.</p>
+
+        <!-- CTA Cards -->
+        <div class="cta-grid">
+          <a href="pages/signup.html" class="cta-card">
+            <div class="cta-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+            </div>
+            <div class="cta-title">Student Signup</div>
+            <div class="cta-desc">Create your account and start taking exams</div>
+          </a>
+
+          <a href="pages/login.html" class="cta-card">
+            <div class="cta-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+              </svg>
+            </div>
+            <div class="cta-title">Student Login</div>
+            <div class="cta-desc">Access your dashboard and view results</div>
+          </a>
+
+          <a href="pages/adminlogin.html" class="cta-card admin">
+            <div class="cta-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div class="cta-title">Admin Login</div>
+            <div class="cta-desc">Manage exams, questions, and view analytics</div>
+          </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-val">2.4k+</div>
+            <div class="stat-label">Students</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">500+</div>
+            <div class="stat-label">Exams</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">98%</div>
+            <div class="stat-label">Success</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right -->
+      <div class="right">
+        <div class="visual">
+          <div class="glow"></div>
+
+          <div class="exam-card card-1">
+            <div class="card-header">
+              <div class="card-icon">📝</div>
+              <div class="card-title">Mathematics 101</div>
+            </div>
+            <div class="card-meta"><span>⏱️ 60 mins</span><span>📊 50 qs</span></div>
+            <div class="card-progress"><div class="card-fill" style="width:65%"></div></div>
+          </div>
+
+          <div class="exam-card card-2">
+            <div class="card-header">
+              <div class="card-icon">💻</div>
+              <div class="card-title">Computer Science</div>
+            </div>
+            <div class="card-meta"><span>⏱️ 90 mins</span><span>📊 40 qs</span></div>
+            <div class="card-progress"><div class="card-fill" style="width:85%"></div></div>
+          </div>
+
+          <div class="exam-card card-3">
+            <div class="card-header">
+              <div class="card-icon">🧪</div>
+              <div class="card-title">Physics Lab</div>
+            </div>
+            <div class="card-meta"><span>⏱️ 45 mins</span><span>📊 30 qs</span></div>
+            <div class="card-progress"><div class="card-fill" style="width:45%"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-copy">© 2026 Online Exam Portal. All rights reserved.</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Support</a>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

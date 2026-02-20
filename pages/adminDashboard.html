@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f4f6fb;
+    --white:     #ffffff;
+    --surface:   #f0f2f8;
+    --border:    #e2e6f0;
+    --blue:      #2563eb;
+    --blue-l:    #eff6ff;
+    --blue-m:    #bfdbfe;
+    --text:      #0f172a;
+    --text-2:    #334155;
+    --muted:     #64748b;
+    --muted-l:   #94a3b8;
+    --green:     #059669;
+    --green-l:   #ecfdf5;
+    --green-m:   #a7f3d0;
+    --amber:     #d97706;
+    --amber-l:   #fffbeb;
+    --amber-m:   #fde68a;
+    --rose:      #e11d48;
+    --rose-d:    #be123c;
+    --rose-l:    #fff1f2;
+    --rose-m:    #fecdd3;
+    --rose-glow: rgba(225,29,72,0.12);
+    --purple:    #7c3aed;
+    --purple-l:  #f5f3ff;
+    --purple-m:  #ddd6fe;
+    --teal:      #0d9488;
+    --teal-l:    #f0fdfa;
+    --teal-m:    #99f6e4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .sidebar-top {
+    padding: 32px 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--blue);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+
+  .admin-card {
+    background: var(--rose-l);
+    border: 1px solid var(--rose-m);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .admin-avatar {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    background: var(--rose);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0.04em;
+  }
+
+  .admin-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 2px; }
+  .admin-role { font-size: 0.68rem; color: var(--rose); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  .sidebar-nav { padding: 20px 12px; flex: 1; overflow-y: auto; }
+
+  .nav-group-label {
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted-l);
+    padding: 0 10px;
+    margin-bottom: 6px;
+    margin-top: 16px;
+    font-weight: 600;
+  }
+
+  .nav-group-label:first-child { margin-top: 0; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 2px;
+    font-size: 0.87rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.18s;
+  }
+
+  .nav-item.active {
+    background: var(--rose-l);
+    color: var(--rose);
+    font-weight: 700;
+    border: 1px solid var(--rose-m);
+  }
+
+  .nav-item:not(.active):hover { background: var(--surface); color: var(--text-2); }
+
+  .nav-icon {
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+  }
+
+  .ni-home  { background: var(--rose-l);   border: 1px solid var(--rose-m);   color: var(--rose); }
+  .ni-add   { background: var(--blue-l);   border: 1px solid var(--blue-m);   color: var(--blue); }
+  .ni-list  { background: var(--green-l);  border: 1px solid var(--green-m);  color: var(--green); }
+  .ni-rel   { background: var(--amber-l);  border: 1px solid var(--amber-m);  color: var(--amber); }
+  .ni-cheat { background: var(--rose-l);   border: 1px solid var(--rose-m);   color: var(--rose); }
+  .ni-rank  { background: var(--purple-l); border: 1px solid var(--purple-m); color: var(--purple); }
+
+  .sidebar-bottom { padding: 16px 12px; border-top: 1px solid var(--border); }
+
+  .btn-logout {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #fee2e2;
+    background: var(--rose-l);
+    color: var(--rose);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.84rem; font-weight: 700;
+    cursor: pointer; text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .btn-logout:hover { background: var(--rose-m); border-color: var(--rose-m); }
+
+  /* Main */
+  .main { display: flex; flex-direction: column; min-height: 100vh; }
+
+  .topbar {
+    padding: 20px 40px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+
+  .topbar-title { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text); }
+  .topbar-title span { color: var(--rose); }
+
+  .admin-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 14px; border-radius: 20px;
+    background: var(--rose-l); border: 1px solid var(--rose-m);
+    color: var(--rose); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em;
+  }
+
+  .admin-pill-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--rose); animation: blink 2s infinite;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+  /* Toasts */
+  .toast-wrap { position: fixed; top: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 10px; }
+
+  .toast {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    font-size: 0.86rem; font-weight: 600; color: var(--text);
+    min-width: 280px;
+    animation: slideIn 0.3s ease, fadeOut 0.4s ease 3.5s forwards;
+    overflow: hidden; position: relative;
+  }
+
+  .toast::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    height: 3px; width: 100%; animation: shrink 4s linear forwards;
+  }
+
+  .toast.green::after { background: var(--green); }
+  .toast.blue::after  { background: var(--blue); }
+
+  .toast-icon {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 0.58rem; font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .toast.green .toast-icon { background: var(--green-l); border: 1px solid var(--green-m); color: var(--green); }
+  .toast.blue  .toast-icon { background: var(--blue-l);  border: 1px solid var(--blue-m);  color: var(--blue); }
+
+  @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateX(40px); } }
+  @keyframes shrink  { from { width: 100%; } to { width: 0%; } }
+
+  /* Content */
+  .content { padding: 32px 40px 60px; flex: 1; display: flex; flex-direction: column; gap: 28px; }
+
+  .section-label {
+    font-family: 'Syne', sans-serif; font-size: 0.68rem; font-weight: 800;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Hero */
+  .hero {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 20px; padding: 36px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+
+  .hero::before {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 320px; height: 100%;
+    background: linear-gradient(135deg, transparent, var(--rose-l));
+    pointer-events: none;
+  }
+
+  .hero::after {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 320px; height: 100%;
+    background-image: radial-gradient(var(--rose-m) 1px, transparent 1px);
+    background-size: 22px 22px; pointer-events: none; opacity: 0.5;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--rose-l); border: 1px solid var(--rose-m);
+    color: var(--rose); border-radius: 20px; padding: 4px 12px;
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 14px;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+    color: var(--text); margin-bottom: 8px; line-height: 1.2;
+  }
+
+  .hero h1 span { color: var(--rose); }
+  .hero-sub { font-size: 0.88rem; color: var(--muted); line-height: 1.6; max-width: 380px; }
+
+  .hero-illustration {
+    position: relative; z-index: 1;
+    width: 90px; height: 90px;
+    border-radius: 22px;
+    background: var(--rose-l);
+    border: 1.5px solid var(--rose-m);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 24px var(--rose-glow);
+  }
+
+  .hero-illustration span {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--rose);
+    letter-spacing: 0.06em;
+  }
+
+  /* Stats */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  .stat-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 22px;
+    position: relative; overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+
+  .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.07); }
+
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  }
+
+  .stat-card.red    ::before { background: linear-gradient(90deg, var(--rose),   #fb7185); }
+  .stat-card.blue   ::before { background: linear-gradient(90deg, var(--blue),   #60a5fa); }
+  .stat-card.green  ::before { background: linear-gradient(90deg, var(--green),  #34d399); }
+  .stat-card.purple ::before { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+
+  .stat-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+    font-family: 'Syne', sans-serif; font-size: 0.58rem; font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .stat-card.red    .stat-icon { background: var(--rose-l);   border: 1px solid var(--rose-m);   color: var(--rose); }
+  .stat-card.blue   .stat-icon { background: var(--blue-l);   border: 1px solid var(--blue-m);   color: var(--blue); }
+  .stat-card.green  .stat-icon { background: var(--green-l);  border: 1px solid var(--green-m);  color: var(--green); }
+  .stat-card.purple .stat-icon { background: var(--purple-l); border: 1px solid var(--purple-m); color: var(--purple); }
+
+  .stat-val { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 800; color: var(--text); line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+
+  /* Action cards */
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+  .action-card {
+    background: var(--white); border: 1px solid var(--border);
+    border-radius: 16px; padding: 26px;
+    text-decoration: none; display: flex; align-items: flex-start; gap: 16px;
+    position: relative; overflow: hidden; transition: all 0.22s; cursor: pointer;
+  }
+
+  .action-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; opacity: 0; transition: opacity 0.22s;
+  }
+
+  .action-card:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(0,0,0,0.08); border-color: transparent; }
+  .action-card:hover::before { opacity: 1; }
+
+  .action-card.blue   ::before { background: linear-gradient(90deg, var(--blue),   #60a5fa); }
+  .action-card.green  ::before { background: linear-gradient(90deg, var(--green),  #34d399); }
+  .action-card.rose   ::before { background: linear-gradient(90deg, var(--rose),   #fb7185); }
+  .action-card.purple ::before { background: linear-gradient(90deg, var(--purple), #a78bfa); }
+  .action-card.teal   ::before { background: linear-gradient(90deg, var(--teal),   #5eead4); }
+
+  .action-card.blue:hover   { box-shadow: 0 12px 36px rgba(37,99,235,0.12); }
+  .action-card.green:hover  { box-shadow: 0 12px 36px rgba(5,150,105,0.12); }
+  .action-card.rose:hover   { box-shadow: 0 12px 36px rgba(225,29,72,0.12); }
+  .action-card.purple:hover { box-shadow: 0 12px 36px rgba(124,58,237,0.12); }
+  .action-card.teal:hover   { box-shadow: 0 12px 36px rgba(13,148,136,0.12); }
+
+  .card-icon-wrap {
+    width: 48px; height: 48px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 0.58rem; font-weight: 800;
+    letter-spacing: 0.03em; flex-shrink: 0;
+  }
+
+  .blue   .card-icon-wrap { background: var(--blue-l);   border: 1px solid var(--blue-m);   color: var(--blue); }
+  .green  .card-icon-wrap { background: var(--green-l);  border: 1px solid var(--green-m);  color: var(--green); }
+  .rose   .card-icon-wrap { background: var(--rose-l);   border: 1px solid var(--rose-m);   color: var(--rose); }
+  .purple .card-icon-wrap { background: var(--purple-l); border: 1px solid var(--purple-m); color: var(--purple); }
+  .teal   .card-icon-wrap { background: var(--teal-l);   border: 1px solid var(--teal-m);   color: var(--teal); }
+
+  .card-body { flex: 1; }
+  .card-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .card-desc  { font-size: 0.76rem; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+
+  .card-cta {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.74rem; font-weight: 700; letter-spacing: 0.04em; transition: gap 0.2s;
+  }
+
+  .blue   .card-cta { color: var(--blue); }
+  .green  .card-cta { color: var(--green); }
+  .rose   .card-cta { color: var(--rose); }
+  .purple .card-cta { color: var(--purple); }
+  .teal   .card-cta { color: var(--teal); }
+
+  .action-card:hover .card-cta { gap: 9px; }
+
+  .action-card.danger-release { border: 1.5px dashed var(--rose-m); background: var(--rose-l); }
+  .action-card.danger-release:hover { border-color: var(--rose); background: #ffe4e8; }
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand"><div class="brand-dot"></div> ExamPortal</div>
+      <div class="admin-card">
+        <div class="admin-avatar">ADM</div>
+        <div>
+          <div class="admin-name">Administrator</div>
+          <div class="admin-role">Full Access</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-label">Management</div>
+      <a href="#" class="nav-item active">
+        <span class="nav-icon ni-home">HOME</span> Dashboard
+      </a>
+      <a href="addQuestion.html" class="nav-item">
+        <span class="nav-icon ni-add">ADD</span> Add Question
+      </a>
+      <a href="/ExamPortal/ViewQuestionsServlet" class="nav-item">
+        <span class="nav-icon ni-list">LIST</span> View Questions
+      </a>
+      <a href="/ExamPortal/ReleaseResultServlet" class="nav-item">
+        <span class="nav-icon ni-rel">REL</span> Release Results
+      </a>
+
+      <div class="nav-group-label">Monitoring</div>
+      <a href="/ExamPortal/CheatMonitorServlet" class="nav-item">
+        <span class="nav-icon ni-cheat">MON</span> Cheat Monitor
+      </a>
+      <a href="leaderboard.html" class="nav-item">
+        <span class="nav-icon ni-rank">RANK</span> Leaderboard
+      </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <a href="/ExamPortal/LogoutServlet" class="btn-logout">Log Out</a>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <div class="topbar">
+      <div class="topbar-title">Admin <span>Dashboard</span></div>
+      <div class="admin-pill"><div class="admin-pill-dot"></div> Admin Session</div>
+    </div>
+
+    <div class="content">
+
+      <!-- Hero -->
+      <div class="hero">
+        <div>
+          <div class="hero-tag">Control Panel</div>
+          <h1>Welcome back,<br><span>Administrator!</span></h1>
+          <p class="hero-sub">Manage exam questions, release results, monitor student activity, and maintain academic integrity across the platform.</p>
+        </div>
+        <div class="hero-illustration"><span>ADMIN</span></div>
+      </div>
+
+      <!-- Stats -->
+      <div>
+        <div class="section-label">Overview</div>
+        <div class="stats-row">
+          <div class="stat-card red">
+            <div class="stat-icon">ALERT</div>
+            <div class="stat-val">-</div>
+            <div class="stat-lbl">Violations Today</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">Q&amp;A</div>
+            <div class="stat-val">-</div>
+            <div class="stat-lbl">Total Questions</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">STU</div>
+            <div class="stat-val">-</div>
+            <div class="stat-lbl">Students Enrolled</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">RES</div>
+            <div class="stat-val">-</div>
+            <div class="stat-lbl">Results Released</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action cards -->
+      <div>
+        <div class="section-label">Quick Actions</div>
+        <div class="cards-grid">
+
+          <a href="addQuestion.html" class="action-card blue">
+            <div class="card-icon-wrap">ADD</div>
+            <div class="card-body">
+              <div class="card-title">Add Question</div>
+              <div class="card-desc">Create and publish new exam questions to the question bank.</div>
+              <div class="card-cta">Add Now</div>
+            </div>
+          </a>
+
+          <a href="/ExamPortal/ViewQuestionsServlet" class="action-card green">
+            <div class="card-icon-wrap">VIEW</div>
+            <div class="card-body">
+              <div class="card-title">View Questions</div>
+              <div class="card-desc">Browse, edit, or delete existing exam questions from the database.</div>
+              <div class="card-cta">View All</div>
+            </div>
+          </a>
+
+          <a href="/ExamPortal/CheatMonitorServlet" class="action-card rose">
+            <div class="card-icon-wrap">MON</div>
+            <div class="card-body">
+              <div class="card-title">Cheat Monitor</div>
+              <div class="card-desc">View snapshots and violation logs for flagged students in real time.</div>
+              <div class="card-cta">Open Monitor</div>
+            </div>
+          </a>
+
+          <a href="leaderboard.html" class="action-card purple">
+            <div class="card-icon-wrap">RANK</div>
+            <div class="card-body">
+              <div class="card-title">Leaderboard</div>
+              <div class="card-desc">See live student rankings and top performers across all exams.</div>
+              <div class="card-cta">View Rankings</div>
+            </div>
+          </a>
+
+          <a href="/ExamPortal/ReleaseResultServlet" class="action-card rose danger-release">
+            <div class="card-icon-wrap">REL</div>
+            <div class="card-body">
+              <div class="card-title">Release Results</div>
+              <div class="card-desc">Publish exam scores to all students. This action cannot be undone.</div>
+              <div class="card-cta">Release</div>
+            </div>
+          </a>
+
+          <a href="/ExamPortal/LogoutServlet" class="action-card teal">
+            <div class="card-icon-wrap">OUT</div>
+            <div class="card-body">
+              <div class="card-title">Logout</div>
+              <div class="card-desc">End your admin session and return to the login page securely.</div>
+              <div class="card-cta">Sign Out</div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+function showToast(message, type) {
+  var wrap  = document.getElementById('toastWrap');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML = '<span class="toast-icon">' + (type === 'green' ? 'OK' : 'INFO') + '</span> ' + message;
+  wrap.appendChild(toast);
+  setTimeout(function() { toast.remove(); }, 4200);
+}
+
+var urlParams = new URLSearchParams(window.location.search);
+var msg = urlParams.get('msg');
+
+if (msg === 'added')    { showToast('Question added successfully!', 'green'); }
+if (msg === 'released') { showToast('Results released successfully!', 'blue'); }
+</script>
+
+</body>
+</html>

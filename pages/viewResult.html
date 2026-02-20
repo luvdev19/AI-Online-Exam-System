@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>View Result — Exam Portal</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue: #3b82f6;
+  --cyan: #06b6d4;
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --grad: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+  --grad-success: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --grad-warning: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --bg: #0a0e1a;
+  --surface: #141827;
+  --surface2: #1e2332;
+  --border: rgba(59, 130, 246, 0.12);
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+}
+
+html, body { 
+  height: 100%; 
+  background: var(--bg); 
+  color: var(--text); 
+  font-family: 'Outfit', sans-serif; 
+  overflow: hidden; 
+}
+
+/* Ambient orbs */
+.orb { 
+  position: fixed; 
+  border-radius: 50%; 
+  filter: blur(100px); 
+  pointer-events: none; 
+  z-index: 0; 
+  animation: drift 12s ease-in-out infinite; 
+}
+.orb-1 { width: 500px; height: 500px; background: rgba(59, 130, 246, 0.12); top: -150px; right: -100px; }
+.orb-2 { width: 420px; height: 420px; background: rgba(6, 182, 212, 0.1); bottom: -120px; left: -80px; animation-delay: -5s; }
+.orb-3 { width: 350px; height: 350px; background: rgba(16, 185, 129, 0.08); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -8s; }
+@keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-20px) scale(1.05)} }
+
+/* Grid */
+body::after {
+  content: ''; 
+  position: fixed; 
+  inset: 0;
+  background-image: linear-gradient(rgba(59,130,246,0.025) 1px,transparent 1px), linear-gradient(90deg,rgba(59,130,246,0.025) 1px,transparent 1px);
+  background-size: 80px 80px; 
+  pointer-events: none; 
+  z-index: 0;
+}
+
+.page { 
+  position: relative; 
+  z-index: 1; 
+  height: 100vh; 
+  display: grid; 
+  grid-template-rows: auto 1fr auto; 
+}
+
+/* ══════════════════════════════
+   HEADER
+══════════════════════════════ */
+.header {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  padding: 18px 48px; 
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px); 
+  background: rgba(10,14,26,0.85);
+  animation: fadeDown 0.5s ease both;
+}
+
+.logo { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  text-decoration: none; 
+}
+
+.logo-icon {
+  width: 40px; 
+  height: 40px; 
+  background: var(--grad); 
+  border-radius: 10px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  font-weight: 800; 
+  font-size: 1rem; 
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  box-shadow: 0 6px 20px rgba(59,130,246,0.3);
+}
+
+.logo-text { 
+  font-weight: 700; 
+  font-size: 1.1rem; 
+  letter-spacing: -0.02em; 
+  color: var(--text); 
+}
+
+.back-link {
+  display: inline-flex; 
+  align-items: center; 
+  gap: 8px;
+  padding: 8px 18px; 
+  border-radius: 8px;
+  background: var(--surface); 
+  border: 1px solid var(--border);
+  color: var(--muted); 
+  text-decoration: none;
+  font-size: 0.85rem; 
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.back-link:hover { 
+  color: var(--text); 
+  background: var(--surface2); 
+  border-color: rgba(59,130,246,0.25); 
+}
+
+.back-link svg { 
+  transition: transform 0.2s; 
+}
+
+.back-link:hover svg { 
+  transform: translateX(-3px); 
+}
+
+/* ══════════════════════════════
+   MAIN
+══════════════════════════════ */
+.main {
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  padding: 40px 24px; 
+  position: relative;
+}
+
+.result-container {
+  max-width: 600px; 
+  width: 100%;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+/* ── Result Card ── */
+.result-card {
+  background: var(--surface); 
+  border: 1px solid var(--border);
+  border-radius: 20px; 
+  padding: 48px 40px;
+  text-align: center; 
+  position: relative; 
+  overflow: hidden;
+}
+
+.result-card::before {
+  content: ''; 
+  position: absolute; 
+  inset: 0;
+  background: var(--grad);
+  opacity: 0.03; 
+  pointer-events: none;
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-flex; 
+  align-items: center; 
+  gap: 8px;
+  padding: 8px 18px; 
+  border-radius: 30px;
+  font-size: 0.78rem; 
+  font-weight: 600;
+  letter-spacing: 0.06em; 
+  text-transform: uppercase;
+  margin-bottom: 24px; 
+  position: relative; 
+  z-index: 1;
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: var(--amber);
+}
+
+.status-badge.success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: var(--emerald);
+}
+
+.status-badge.fail {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: var(--red);
+}
+
+.status-dot {
+  width: 6px; 
+  height: 6px; 
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-badge.pending .status-dot { background: var(--amber); }
+.status-badge.success .status-dot { background: var(--emerald); }
+.status-badge.fail .status-dot { background: var(--red); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* Title */
+.result-title {
+  font-weight: 800; 
+  font-size: 2.2rem;
+  letter-spacing: -0.02em; 
+  margin-bottom: 14px;
+  position: relative; 
+  z-index: 1;
+}
+
+.result-subtitle {
+  font-size: 1rem; 
+  color: var(--muted);
+  margin-bottom: 40px; 
+  font-weight: 300;
+  position: relative; 
+  z-index: 1;
+}
+
+/* ── Score Display ── */
+.score-display {
+  margin-bottom: 36px; 
+  position: relative; 
+  z-index: 1;
+}
+
+.score-circle {
+  width: 200px; 
+  height: 200px;
+  margin: 0 auto 20px;
+  position: relative;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+}
+
+.circle-bg {
+  position: absolute; 
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--cyan), var(--emerald), var(--cyan));
+  opacity: 0.1;
+  animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.circle-inner {
+  position: absolute; 
+  inset: 12px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex; 
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
+  border: 2px solid var(--border);
+}
+
+.score-value {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800; 
+  font-size: 3.5rem;
+  line-height: 1;
+  background: var(--grad-success);
+  -webkit-background-clip: text; 
+  -webkit-text-fill-color: transparent; 
+  background-clip: text;
+  margin-bottom: 6px;
+}
+
+.score-label {
+  font-size: 0.82rem; 
+  color: var(--muted);
+  letter-spacing: 0.08em; 
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ── Stats Grid ── */
+.stats-grid {
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px; 
+  margin-bottom: 32px;
+  position: relative; 
+  z-index: 1;
+}
+
+.stat-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px; 
+  padding: 18px 16px;
+  transition: all 0.25s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59, 130, 246, 0.25);
+  background: var(--bg);
+}
+
+.stat-icon {
+  font-size: 1.8rem; 
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800; 
+  font-size: 1.5rem;
+  color: var(--text); 
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.72rem; 
+  color: var(--muted);
+  letter-spacing: 0.06em; 
+  text-transform: uppercase;
+}
+
+/* ── Progress Bar ── */
+.progress-bar {
+  background: var(--surface2);
+  height: 10px; 
+  border-radius: 10px;
+  overflow: hidden; 
+  margin-bottom: 10px;
+  position: relative; 
+  z-index: 1;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--grad-success);
+  border-radius: 10px;
+  transition: width 1s ease;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+  animation: fillProgress 1.5s ease;
+}
+
+@keyframes fillProgress {
+  from { width: 0; }
+}
+
+.progress-label {
+  font-size: 0.78rem; 
+  color: var(--muted);
+  text-align: right; 
+  margin-bottom: 28px;
+  position: relative; 
+  z-index: 1;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex; 
+  gap: 12px; 
+  justify-content: center;
+  position: relative; 
+  z-index: 1;
+}
+
+.btn {
+  display: inline-flex; 
+  align-items: center; 
+  gap: 8px;
+  padding: 12px 28px; 
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.88rem; 
+  font-weight: 600;
+  text-decoration: none; 
+  transition: all 0.25s;
+  cursor: pointer; 
+  border: none;
+}
+
+.btn-primary {
+  background: var(--grad);
+  color: #fff;
+  box-shadow: 0 6px 24px rgba(59, 130, 246, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--bg);
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+/* ── Pending State ── */
+.pending-icon {
+  font-size: 5rem; 
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ══════════════════════════════
+   FOOTER
+══════════════════════════════ */
+.footer {
+  border-top: 1px solid var(--border); 
+  padding: 16px 48px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  animation: fadeUp 0.6s 0.2s ease both;
+}
+
+.footer-copy { 
+  font-size: 0.8rem; 
+  color: var(--muted); 
+}
+
+/* ══════════════════════════════
+   ANIMATIONS
+══════════════════════════════ */
+@keyframes fadeUp { 
+  from { opacity: 0; transform: translateY(20px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+@keyframes fadeDown { 
+  from { opacity: 0; transform: translateY(-14px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+/* ══════════════════════════════
+   RESPONSIVE
+══════════════════════════════ */
+@media(max-width:768px) {
+  .header, .footer { padding: 14px 24px; }
+  .result-card { padding: 36px 28px; }
+  .result-title { font-size: 1.8rem; }
+  .score-value { font-size: 3rem; }
+  .stats-grid { grid-template-columns: 1fr; gap: 12px; }
+  .actions { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="page">
+
+  <!-- Header -->
+  <header class="header">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">EP</div>
+      <span class="logo-text">Exam Portal</span>
+    </a>
+    <a href="javascript:history.back()" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"/>
+        <polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Back
+    </a>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="result-container">
+      <div class="result-card" id="resultCard">
+        <!-- Content populated by JavaScript -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-copy">© 2026 Online Exam Portal. All rights reserved.</div>
+  </footer>
+
+</div>
+
+<script>
+// Parse URL parameters
+const urlParams = new URLSearchParams(window.location.search);
+const score = urlParams.get('score');
+const total = urlParams.get('total') || 100; // default total questions
+const correct = urlParams.get('correct'); // number of correct answers
+const wrong = urlParams.get('wrong'); // number of wrong answers
+const unanswered = urlParams.get('unanswered'); // number of unanswered
+
+// Calculate score from correct answers if provided
+let finalScore = score;
+if (correct !== null && total) {
+  finalScore = Math.round((parseInt(correct) / parseInt(total)) * 100);
+}
+
+const resultCard = document.getElementById('resultCard');
+
+// ══════════════════════════════
+// PENDING STATE
+// ══════════════════════════════
+if (score === "pending" || score === null) {
+  resultCard.innerHTML = `
+    <div class="status-badge pending">
+      <span class="status-dot"></span>
+      Pending
+    </div>
+    
+    <div class="pending-icon">⏳</div>
+    
+    <h2 class="result-title">Result Not Released Yet!</h2>
+    <p class="result-subtitle">Your exam is under review. Results will be published soon.</p>
+    
+    <div class="actions">
+      <a href="dashboard.html" class="btn btn-primary">
+        Go to Dashboard
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+      <a href="exams.html" class="btn btn-secondary">View All Exams</a>
+    </div>
+  `;
+}
+
+// ══════════════════════════════
+// SCORE AVAILABLE
+// ══════════════════════════════
+else {
+  const scoreNum = parseInt(finalScore);
+  const isPassing = scoreNum >= 50; // 50% passing threshold
+  const percentage = scoreNum;
+  
+  // Calculate stats
+  const correctAnswers = correct || Math.round((scoreNum / 100) * total);
+  const wrongAnswers = wrong || (total - correctAnswers - (unanswered || 0));
+  const unansweredQuestions = unanswered || 0;
+  
+  resultCard.innerHTML = `
+    <div class="status-badge ${isPassing ? 'success' : 'fail'}">
+      <span class="status-dot"></span>
+      ${isPassing ? 'Passed' : 'Failed'}
+    </div>
+    
+    <h2 class="result-title">${isPassing ? 'Congratulations! 🎉' : 'Keep Trying! 💪'}</h2>
+    <p class="result-subtitle">${isPassing ? 'You have successfully passed the examination.' : 'You need to score at least 50% to pass.'}</p>
+    
+    <div class="score-display">
+      <div class="score-circle">
+        <div class="circle-bg"></div>
+        <div class="circle-inner">
+          <div class="score-value">${scoreNum}%</div>
+          <div class="score-label">Score</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">${correctAnswers}</div>
+        <div class="stat-label">Correct</div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">❌</div>
+        <div class="stat-value">${wrongAnswers}</div>
+        <div class="stat-label">Wrong</div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-icon">⏭️</div>
+        <div class="stat-value">${unansweredQuestions}</div>
+        <div class="stat-label">Skipped</div>
+      </div>
+    </div>
+    
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: ${percentage}%"></div>
+    </div>
+    <div class="progress-label">${correctAnswers} out of ${total} questions answered correctly</div>
+    
+    <div class="actions">
+      <a href="dashboard.html" class="btn btn-primary">
+        Go to Dashboard
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+      <a href="exams.html" class="btn btn-secondary">View All Exams</a>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>

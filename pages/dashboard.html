@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f4f6fb;
+    --white:    #ffffff;
+    --surface:  #f0f2f8;
+    --border:   #e2e6f0;
+    --blue:     #2563eb;
+    --blue-d:   #1d4ed8;
+    --blue-l:   #eff6ff;
+    --blue-m:   #bfdbfe;
+    --text:     #0f172a;
+    --text-2:   #334155;
+    --muted:    #64748b;
+    --muted-l:  #94a3b8;
+    --green:    #059669;
+    --green-l:  #ecfdf5;
+    --green-m:  #a7f3d0;
+    --amber:    #d97706;
+    --amber-l:  #fffbeb;
+    --amber-m:  #fde68a;
+    --rose:     #e11d48;
+    --rose-l:   #fff1f2;
+    --rose-m:   #fecdd3;
+    --purple:   #7c3aed;
+    --purple-l: #f5f3ff;
+    --purple-m: #ddd6fe;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
+
+  /* Topbar */
+  .topbar {
+    padding:18px 48px; background:var(--white); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:10;
+  }
+  .topbar-left { display:flex; align-items:center; gap:16px; }
+  .brand {
+    font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800;
+    letter-spacing:0.07em; text-transform:uppercase; color:var(--blue);
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand-dot { width:8px; height:8px; border-radius:50%; background:var(--blue); }
+  .topbar-divider { width:1px; height:22px; background:var(--border); }
+  .topbar-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; color:var(--text); }
+  .topbar-title span { color:var(--blue); }
+  .topbar-right { display:flex; align-items:center; gap:12px; }
+  .session-pill {
+    display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border-radius:20px;
+    background:var(--blue-l); border:1px solid var(--blue-m);
+    color:var(--blue); font-size:0.68rem; font-weight:700; letter-spacing:0.06em;
+  }
+  .pill-dot { width:6px; height:6px; border-radius:50%; background:var(--blue); animation:blink 2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+  .btn-logout {
+    padding:8px 16px; border-radius:10px;
+    border:1px solid var(--rose-m); background:var(--rose-l);
+    color:var(--rose); font-family:'Space Grotesk',sans-serif;
+    font-size:0.8rem; font-weight:700; cursor:pointer; text-decoration:none; transition:all 0.2s;
+  }
+  .btn-logout:hover { background:var(--rose-m); }
+
+  /* Page */
+  .page { max-width:1100px; margin:0 auto; padding:36px 48px 60px; display:flex; flex-direction:column; gap:28px; }
+
+  /* Cheat alert */
+  .cheat-alert {
+    display:none; align-items:center; gap:14px;
+    background:var(--rose-l); border:1.5px solid var(--rose-m);
+    border-radius:14px; padding:18px 22px;
+  }
+  .cheat-alert.show { display:flex; }
+  .cheat-icon {
+    width:38px; height:38px; border-radius:10px; background:var(--rose);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.62rem; font-weight:800; color:white; flex-shrink:0;
+  }
+  .cheat-text { font-size:0.88rem; color:var(--rose); font-weight:600; line-height:1.5; }
+  .cheat-text strong { display:block; font-family:'Syne',sans-serif; font-size:0.92rem; margin-bottom:2px; }
+
+  /* Section label */
+  .section-label {
+    font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:800;
+    letter-spacing:0.18em; text-transform:uppercase; color:var(--muted);
+    display:flex; align-items:center; gap:10px; margin-bottom:16px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* Hero */
+  .hero {
+    background:var(--white); border:1px solid var(--border); border-radius:20px;
+    padding:40px 48px; display:flex; align-items:center; justify-content:space-between;
+    position:relative; overflow:hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; top:0; right:0; width:340px; height:100%;
+    background:linear-gradient(135deg,transparent,var(--blue-l)); pointer-events:none;
+  }
+  .hero::after {
+    content:''; position:absolute; top:0; right:0; width:340px; height:100%;
+    background-image:radial-gradient(var(--blue-m) 1px,transparent 1px);
+    background-size:22px 22px; pointer-events:none; opacity:0.5;
+  }
+  .hero-tag {
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--blue-l); border:1px solid var(--blue-m); color:var(--blue);
+    border-radius:20px; padding:4px 12px; font-size:0.68rem; font-weight:700;
+    letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px;
+  }
+  .hero h1 { font-family:'Syne',sans-serif; font-size:2.2rem; font-weight:800; color:var(--text); margin-bottom:8px; line-height:1.2; }
+  .hero h1 span { color:var(--blue); }
+  .hero-sub { font-size:0.9rem; color:var(--muted); line-height:1.65; max-width:420px; }
+  .hero-illustration {
+    position:relative; z-index:1; width:96px; height:96px; border-radius:24px;
+    background:var(--blue-l); border:1.5px solid var(--blue-m);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 24px rgba(37,99,235,0.12); flex-shrink:0;
+  }
+  .hero-illustration span { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; color:var(--blue); }
+
+  /* Stats */
+  .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .stat-card {
+    background:var(--white); border:1px solid var(--border); border-radius:14px;
+    padding:22px 24px; position:relative; overflow:hidden; transition:box-shadow 0.2s,transform 0.2s;
+  }
+  .stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,0.07); }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.blue::before   { background:linear-gradient(90deg,var(--blue),  #60a5fa); }
+  .stat-card.green::before  { background:linear-gradient(90deg,var(--green), #34d399); }
+  .stat-card.purple::before { background:linear-gradient(90deg,var(--purple),#a78bfa); }
+  .stat-icon {
+    width:36px; height:36px; border-radius:9px; margin-bottom:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.58rem; font-weight:800;
+  }
+  .stat-card.blue   .stat-icon { background:var(--blue-l);   border:1px solid var(--blue-m);   color:var(--blue); }
+  .stat-card.green  .stat-icon { background:var(--green-l);  border:1px solid var(--green-m);  color:var(--green); }
+  .stat-card.purple .stat-icon { background:var(--purple-l); border:1px solid var(--purple-m); color:var(--purple); }
+  .stat-val { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:var(--text); line-height:1; margin-bottom:4px; }
+  .stat-lbl { font-size:0.72rem; color:var(--muted); font-weight:500; }
+
+  /* Action cards */
+  .cards-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+  .action-card {
+    background:var(--white); border:1px solid var(--border); border-radius:16px; padding:28px;
+    text-decoration:none; display:flex; align-items:flex-start; gap:18px;
+    position:relative; overflow:hidden; transition:all 0.22s;
+  }
+  .action-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; opacity:0; transition:opacity 0.22s; }
+  .action-card:hover { transform:translateY(-3px); border-color:transparent; }
+  .action-card:hover::before { opacity:1; }
+  .action-card.blue::before   { background:linear-gradient(90deg,var(--blue),  #60a5fa); }
+  .action-card.green::before  { background:linear-gradient(90deg,var(--green), #34d399); }
+  .action-card.amber::before  { background:linear-gradient(90deg,var(--amber), #fbbf24); }
+  .action-card.purple::before { background:linear-gradient(90deg,var(--purple),#a78bfa); }
+  .action-card.blue:hover   { box-shadow:0 12px 36px rgba(37,99,235,0.12); }
+  .action-card.green:hover  { box-shadow:0 12px 36px rgba(5,150,105,0.12); }
+  .action-card.amber:hover  { box-shadow:0 12px 36px rgba(217,119,6,0.12); }
+  .action-card.purple:hover { box-shadow:0 12px 36px rgba(124,58,237,0.12); }
+  .card-icon {
+    width:50px; height:50px; border-radius:13px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.6rem; font-weight:800;
+  }
+  .action-card.blue   .card-icon { background:var(--blue-l);   border:1px solid var(--blue-m);   color:var(--blue); }
+  .action-card.green  .card-icon { background:var(--green-l);  border:1px solid var(--green-m);  color:var(--green); }
+  .action-card.amber  .card-icon { background:var(--amber-l);  border:1px solid var(--amber-m);  color:var(--amber); }
+  .action-card.purple .card-icon { background:var(--purple-l); border:1px solid var(--purple-m); color:var(--purple); }
+  .card-body { flex:1; }
+  .card-title { font-family:'Syne',sans-serif; font-size:0.98rem; font-weight:800; color:var(--text); margin-bottom:5px; }
+  .card-desc  { font-size:0.78rem; color:var(--muted); line-height:1.55; margin-bottom:14px; }
+  .card-cta   { font-size:0.74rem; font-weight:700; }
+  .action-card.blue   .card-cta { color:var(--blue); }
+  .action-card.green  .card-cta { color:var(--green); }
+  .action-card.amber  .card-cta { color:var(--amber); }
+  .action-card.purple .card-cta { color:var(--purple); }
+</style>
+</head>
+<body>
+
+<!-- Topbar — no sidebar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="brand"><div class="brand-dot"></div> ExamPortal</div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-title">Student <span>Dashboard</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="session-pill"><div class="pill-dot"></div> Session Active</div>
+    <a href="../LogoutServlet" class="btn-logout">Log Out</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Cheat alert -->
+  <div class="cheat-alert" id="cheatAlert">
+    <div class="cheat-icon">WARN</div>
+    <div class="cheat-text">
+      <strong>Exam Auto-Submitted</strong>
+      A cheating attempt was detected and your exam was automatically submitted.
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div>
+      <div class="hero-tag">Student Portal</div>
+      <h1>Hello, <span>Scholar!</span></h1>
+      <p class="hero-sub">Welcome to your dashboard. Start your exam, view your results, or check the leaderboard to see where you stand.</p>
+    </div>
+    <div class="hero-illustration"><span>EP</span></div>
+  </div>
+
+  <!-- Stats -->
+  <div>
+    <div class="section-label">Your Stats</div>
+    <div class="stats-row">
+      <div class="stat-card blue">
+        <div class="stat-icon">EXAM</div>
+        <div class="stat-val">-</div>
+        <div class="stat-lbl">Exams Taken</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">SCORE</div>
+        <div class="stat-val">-</div>
+        <div class="stat-lbl">Latest Score</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-icon">RANK</div>
+        <div class="stat-val">-</div>
+        <div class="stat-lbl">Current Rank</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action cards -->
+  <div>
+    <div class="section-label">Quick Actions</div>
+    <div class="cards-grid">
+
+      <a href="../ProfileServlet" class="action-card blue">
+        <div class="card-icon">PRO</div>
+        <div class="card-body">
+          <div class="card-title">My Profile</div>
+          <div class="card-desc">View your personal details, exam status, and performance overview.</div>
+          <div class="card-cta">View Profile</div>
+        </div>
+      </a>
+
+      <a href="startExam.html" class="action-card green">
+        <div class="card-icon">EXAM</div>
+        <div class="card-body">
+          <div class="card-title">Start Exam</div>
+          <div class="card-desc">Begin your proctored exam session. Make sure your camera is ready.</div>
+          <div class="card-cta">Start Now</div>
+        </div>
+      </a>
+
+      <a href="../ResultServlet" class="action-card amber">
+        <div class="card-icon">RES</div>
+        <div class="card-body">
+          <div class="card-title">View Result</div>
+          <div class="card-desc">Check your exam score and see your detailed result breakdown.</div>
+          <div class="card-cta">View Result</div>
+        </div>
+      </a>
+
+      <a href="leaderboard.html" class="action-card purple">
+        <div class="card-icon">RANK</div>
+        <div class="card-body">
+          <div class="card-title">Leaderboard</div>
+          <div class="card-desc">See the live student rankings and find out where you stand.</div>
+          <div class="card-cta">View Rankings</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+if (localStorage.getItem('cheated') === 'true') {
+  document.getElementById('cheatAlert').classList.add('show');
+  localStorage.removeItem('cheated');
+}
+</script>
+
+</body>
+</html>

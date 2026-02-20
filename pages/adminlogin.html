@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f4f6fb;
+    --white:     #ffffff;
+    --surface:   #f0f2f8;
+    --border:    #e2e6f0;
+    --blue:      #2563eb;
+    --blue-l:    #eff6ff;
+    --blue-m:    #bfdbfe;
+    --text:      #0f172a;
+    --text-2:    #334155;
+    --muted:     #64748b;
+    --muted-l:   #94a3b8;
+    --rose:      #e11d48;
+    --rose-d:    #be123c;
+    --rose-l:    #fff1f2;
+    --rose-m:    #fecdd3;
+    --rose-glow: rgba(225,29,72,0.18);
+    --green:     #059669;
+    --green-l:   #ecfdf5;
+    --green-m:   #a7f3d0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow: hidden;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100vh;
+  }
+
+  /* Left panel */
+  .left {
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .deco-circle { position: absolute; border-radius: 50%; pointer-events: none; }
+  .deco-circle.c1 { width: 380px; height: 380px; top: -100px; right: -100px; background: radial-gradient(circle, rgba(225,29,72,0.06) 0%, transparent 70%); }
+  .deco-circle.c2 { width: 260px; height: 260px; bottom: -60px; left: -60px; background: radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%); }
+
+  .left::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none; opacity: 0.6;
+  }
+
+  .left-top { position: relative; z-index: 1; }
+
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem; font-weight: 800;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--blue); display: flex; align-items: center; gap: 8px;
+    margin-bottom: 64px;
+  }
+  .brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+
+  .left-center {
+    position: relative; z-index: 1; flex: 1;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+
+  .shield-wrap {
+    width: 72px; height: 72px; border-radius: 20px;
+    background: var(--rose-l); border: 1.5px solid var(--rose-m);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 28px; box-shadow: 0 4px 20px var(--rose-glow);
+  }
+  .shield-inner { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; color: var(--rose); letter-spacing: 0.04em; }
+
+  .left-center h1 { font-family: 'Syne', sans-serif; font-size: 2.6rem; font-weight: 800; line-height: 1.15; color: var(--text); margin-bottom: 16px; }
+  .left-center h1 span { color: var(--rose); }
+  .left-center p { font-size: 0.93rem; color: var(--muted); line-height: 1.7; max-width: 340px; margin-bottom: 40px; }
+
+  .features { display: flex; flex-direction: column; gap: 12px; }
+  .feat { display: flex; align-items: center; gap: 12px; font-size: 0.84rem; color: var(--text-2); font-weight: 500; }
+  .feat-check {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--green-l); border: 1px solid var(--green-m);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.62rem; color: var(--green); flex-shrink: 0; font-weight: 800;
+    font-family: 'Syne', sans-serif; letter-spacing: 0;
+  }
+
+  .left-bottom { position: relative; z-index: 1; font-size: 0.7rem; color: var(--muted-l); }
+
+  /* Right panel */
+  .right {
+    background: var(--bg); display: flex; align-items: center;
+    justify-content: center; padding: 48px; position: relative; overflow: hidden;
+  }
+  .right::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(225,29,72,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .form-box { width: 100%; max-width: 400px; position: relative; z-index: 1; }
+
+  .admin-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--rose-l); border: 1px solid var(--rose-m);
+    color: var(--rose); border-radius: 20px; padding: 6px 14px;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 20px;
+  }
+  .admin-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--rose); animation: blink 1.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .form-title { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .form-sub   { font-size: 0.82rem; color: var(--muted); margin-bottom: 36px; line-height: 1.5; }
+
+  .field { margin-bottom: 18px; }
+  label { display: block; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+
+  .input-wrap { position: relative; }
+  .input-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 0.6rem; font-weight: 800; font-family: 'Syne', sans-serif;
+    letter-spacing: 0.04em; pointer-events: none; transition: opacity 0.25s; opacity: 0.4;
+  }
+  .input-icon.email-ic { color: var(--blue); }
+  .input-icon.pass-ic  { color: var(--rose); }
+
+  input[type="email"], input[type="password"] {
+    width: 100%; background: var(--white); border: 1.5px solid var(--border);
+    border-radius: 12px; padding: 13px 16px 13px 52px;
+    color: var(--text); font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem; outline: none; transition: all 0.22s;
+  }
+  input:focus { border-color: var(--rose); box-shadow: 0 0 0 3px var(--rose-glow); background: var(--rose-l); }
+  .input-wrap:focus-within .input-icon { opacity: 1; }
+  input::placeholder { color: var(--muted-l); font-size: 0.88rem; }
+
+  .forgot-row { display: flex; justify-content: flex-end; margin-top: -8px; margin-bottom: 28px; }
+  .forgot-link { font-size: 0.74rem; color: var(--rose); text-decoration: none; font-weight: 600; transition: opacity 0.2s; }
+  .forgot-link:hover { opacity: 0.65; }
+
+  .btn-login {
+    width: 100%; padding: 14px;
+    font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 800;
+    letter-spacing: 0.06em; color: var(--white);
+    background: linear-gradient(135deg, var(--rose) 0%, var(--rose-d) 100%);
+    border: none; border-radius: 12px; cursor: pointer;
+    position: relative; overflow: hidden; transition: all 0.25s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 20px var(--rose-glow), 0 1px 0 rgba(255,255,255,0.12) inset;
+  }
+  .btn-login::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.14), transparent 60%); opacity: 0; transition: opacity 0.25s; }
+  .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(225,29,72,0.38); }
+  .btn-login:hover::before { opacity: 1; }
+  .btn-login:active { transform: translateY(0); }
+  .btn-arrow { transition: transform 0.25s; font-style: normal; }
+  .btn-login:hover .btn-arrow { transform: translateX(4px); }
+  .btn-login.loading { pointer-events: none; opacity: 0.8; }
+  .spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn-login.loading .btn-text, .btn-login.loading .btn-arrow { display: none; }
+  .btn-login.loading .spinner { display: block; }
+
+  .divider { display: flex; align-items: center; gap: 14px; margin: 24px 0 20px; }
+  .divider-line { flex: 1; height: 1px; background: var(--border); }
+  .divider-text { font-size: 0.7rem; color: var(--muted-l); letter-spacing: 0.06em; }
+
+  .student-link-box {
+    background: var(--white); border: 1.5px solid var(--border); border-radius: 12px;
+    padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .student-link-box:hover { border-color: var(--blue-m); background: var(--blue-l); }
+  .student-link-left { display: flex; align-items: center; gap: 10px; }
+  .student-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    background: var(--blue-l); border: 1px solid var(--blue-m);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 800;
+    color: var(--blue); letter-spacing: 0.04em;
+  }
+  .student-link-text { font-size: 0.82rem; font-weight: 600; color: var(--text-2); }
+  .student-link-sub  { font-size: 0.7rem; color: var(--muted-l); margin-top: 1px; }
+  .student-arrow { font-size: 0.82rem; color: var(--blue); font-weight: 700; transition: transform 0.2s; }
+  .student-link-box:hover .student-arrow { transform: translateX(4px); }
+
+  .trust-row { display: flex; justify-content: center; gap: 20px; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .trust-item { display: flex; align-items: center; gap: 6px; font-size: 0.65rem; color: var(--muted-l); letter-spacing: 0.04em; }
+  .trust-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted-l); }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Left branding -->
+  <div class="left">
+    <div class="deco-circle c1"></div>
+    <div class="deco-circle c2"></div>
+
+    <div class="left-top">
+      <div class="brand"><div class="brand-dot"></div> ExamPortal</div>
+    </div>
+
+    <div class="left-center">
+      <div class="shield-wrap"><div class="shield-inner">ADMIN</div></div>
+      <h1>Admin<br><span>Control Panel.</span></h1>
+      <p>Secure access for administrators only. Manage exams, monitor students, and review academic integrity reports.</p>
+
+      <div class="features">
+        <div class="feat"><div class="feat-check">OK</div> Manage student accounts and exams</div>
+        <div class="feat"><div class="feat-check">OK</div> Monitor live cheating activity</div>
+        <div class="feat"><div class="feat-check">OK</div> View scores, rankings and reports</div>
+        <div class="feat"><div class="feat-check">OK</div> Full audit trail and snapshots</div>
+      </div>
+    </div>
+
+    <div class="left-bottom">2025 ExamPortal. Admin access is logged and monitored.</div>
+  </div>
+
+  <!-- Right form -->
+  <div class="right">
+    <div class="form-box">
+
+      <div class="admin-tag">
+        <div class="admin-tag-dot"></div>
+        Admin Access Only
+      </div>
+
+      <div class="form-title">Admin Sign In</div>
+      <div class="form-sub">Enter your administrator credentials to access the control panel.</div>
+
+      <form action="../AdminLoginServlet" method="post" onsubmit="handleLogin(event)">
+
+        <div class="field">
+          <label>Admin Email</label>
+          <div class="input-wrap">
+            <input type="email" name="email" placeholder="admin@examportal.com" required>
+            <span class="input-icon email-ic">EMAIL</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap">
+            <input type="password" name="password" placeholder="Enter your password" required>
+            <span class="input-icon pass-ic">PASS</span>
+          </div>
+        </div>
+
+        <div class="forgot-row">
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">
+          <span class="btn-text">Sign In to Admin Panel</span>
+          <div class="spinner"></div>
+        </button>
+
+      </form>
+
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">NOT AN ADMIN?</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <a href="student_login.html" class="student-link-box">
+        <div class="student-link-left">
+          <div class="student-icon">STU</div>
+          <div>
+            <div class="student-link-text">Student Login</div>
+            <div class="student-link-sub">Access your exam dashboard</div>
+          </div>
+        </div>
+        <div class="student-arrow">go</div>
+      </a>
+
+      <div class="trust-row">
+        <div class="trust-item"><div class="trust-dot"></div> SSL Encrypted</div>
+        <div class="trust-item"><div class="trust-dot"></div> Access Logged</div>
+        <div class="trust-item"><div class="trust-dot"></div> 2FA Ready</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function handleLogin(e) {
+  e.preventDefault();
+  var btn  = document.getElementById('loginBtn');
+  var form = e.target;
+  btn.classList.add('loading');
+
+  fetch(form.action, {
+    method: 'POST',
+    body: new URLSearchParams(new FormData(form))
+  })
+  .then(function(res) {
+    if (res.redirected) {
+      window.location.href = res.url;
+    } else {
+      window.location.href = 'admin_dashboard.html';
+    }
+  })
+  .catch(function() {
+    window.location.href = 'admin_dashboard.html';
+  });
+}
+</script>
+
+</body>
+</html>

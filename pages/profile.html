@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f4f6fb;
+    --white:    #ffffff;
+    --surface:  #f0f2f8;
+    --border:   #e2e6f0;
+    --blue:     #2563eb;
+    --blue-l:   #eff6ff;
+    --blue-m:   #bfdbfe;
+    --text:     #0f172a;
+    --text-2:   #334155;
+    --muted:    #64748b;
+    --muted-l:  #94a3b8;
+    --green:    #059669;
+    --green-l:  #ecfdf5;
+    --green-m:  #a7f3d0;
+    --amber:    #d97706;
+    --amber-l:  #fffbeb;
+    --amber-m:  #fde68a;
+    --rose:     #e11d48;
+    --rose-l:   #fff1f2;
+    --rose-m:   #fecdd3;
+    --purple:   #7c3aed;
+    --purple-l: #f5f3ff;
+    --purple-m: #ddd6fe;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
+  .layout { display:grid; grid-template-columns:280px 1fr; min-height:100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    background:var(--white); border-right:1px solid var(--border);
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh; overflow:hidden;
+  }
+  .sidebar-top { padding:32px 20px 24px; border-bottom:1px solid var(--border); }
+  .brand {
+    font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800;
+    letter-spacing:0.07em; text-transform:uppercase; color:var(--blue);
+    display:flex; align-items:center; gap:8px; margin-bottom:24px;
+  }
+  .brand-dot { width:8px; height:8px; border-radius:50%; background:var(--blue); }
+  .avatar-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .avatar-ring {
+    width:80px; height:80px; border-radius:50%;
+    background:linear-gradient(135deg,var(--blue),#60a5fa);
+    padding:3px;
+  }
+  .avatar-inner {
+    width:100%; height:100%; border-radius:50%;
+    background:var(--white); display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:var(--blue);
+  }
+  .avatar-status {
+    position:relative; margin-top:-18px; margin-left:52px;
+    width:14px; height:14px; border-radius:50%;
+    background:var(--green); border:2px solid var(--white);
+  }
+  .avatar-name { font-family:'Syne',sans-serif; font-size:1rem; font-weight:800; text-align:center; color:var(--text); }
+  .avatar-email { font-size:0.75rem; color:var(--muted); text-align:center; }
+  .avatar-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--blue-l); border:1px solid var(--blue-m);
+    color:var(--blue); border-radius:20px; padding:4px 12px;
+    font-size:0.68rem; font-weight:700; letter-spacing:0.06em;
+  }
+  .sidebar-nav { padding:20px 12px; flex:1; }
+  .nav-label { font-size:0.58rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted-l); padding:0 10px; margin-bottom:6px; font-weight:600; }
+  .nav-item {
+    display:flex; align-items:center; gap:10px; padding:10px 12px;
+    border-radius:10px; margin-bottom:2px; font-size:0.87rem; font-weight:500;
+    color:var(--muted); cursor:pointer; text-decoration:none; transition:all 0.18s;
+  }
+  .nav-item.active { background:var(--blue-l); color:var(--blue); font-weight:700; border:1px solid var(--blue-m); }
+  .nav-item:not(.active):hover { background:var(--surface); color:var(--text-2); }
+  .nav-icon {
+    width:22px; height:22px; border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.58rem; font-weight:800; flex-shrink:0;
+  }
+  .ni-p  { background:var(--blue-l);   border:1px solid var(--blue-m);   color:var(--blue); }
+  .ni-e  { background:var(--green-l);  border:1px solid var(--green-m);  color:var(--green); }
+  .ni-r  { background:var(--amber-l);  border:1px solid var(--amber-m);  color:var(--amber); }
+  .sidebar-bottom { padding:16px 12px; border-top:1px solid var(--border); }
+  .btn-back {
+    display:flex; align-items:center; justify-content:center;
+    width:100%; padding:10px 14px; border-radius:10px;
+    border:1px solid var(--border); background:var(--surface);
+    color:var(--muted); font-family:'Space Grotesk',sans-serif;
+    font-size:0.82rem; font-weight:600; cursor:pointer; text-decoration:none; transition:all 0.2s;
+  }
+  .btn-back:hover { background:var(--blue-l); border-color:var(--blue-m); color:var(--blue); }
+
+  /* Main */
+  .main { display:flex; flex-direction:column; min-height:100vh; }
+  .topbar {
+    padding:20px 40px; background:var(--white); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:10;
+  }
+  .topbar-title { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:800; color:var(--text); }
+  .topbar-title span { color:var(--blue); }
+  .live-chip {
+    display:inline-flex; align-items:center; gap:6px; padding:5px 14px; border-radius:20px;
+    background:var(--blue-l); border:1px solid var(--blue-m);
+    color:var(--blue); font-size:0.68rem; font-weight:700; letter-spacing:0.06em;
+  }
+  .chip-dot { width:6px; height:6px; border-radius:50%; background:var(--blue); animation:blink 2s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .content { padding:32px 40px 60px; flex:1; display:flex; flex-direction:column; gap:24px; }
+  .section-label {
+    font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:800;
+    letter-spacing:0.18em; text-transform:uppercase; color:var(--muted);
+    display:flex; align-items:center; gap:10px; margin-bottom:16px;
+  }
+  .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* Stat row */
+  .stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .stat-card {
+    background:var(--white); border:1px solid var(--border); border-radius:14px;
+    padding:22px; position:relative; overflow:hidden; transition:transform 0.2s,box-shadow 0.2s;
+  }
+  .stat-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,0.07); }
+  .stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.blue   ::before { background:linear-gradient(90deg,var(--blue),  #60a5fa); }
+  .stat-card.purple ::before { background:linear-gradient(90deg,var(--purple),#a78bfa); }
+  .stat-card.amber  ::before { background:linear-gradient(90deg,var(--amber), #fbbf24); }
+  .stat-icon {
+    width:36px; height:36px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.58rem; font-weight:800; margin-bottom:14px;
+  }
+  .stat-card.blue   .stat-icon { background:var(--blue-l);   border:1px solid var(--blue-m);   color:var(--blue); }
+  .stat-card.purple .stat-icon { background:var(--purple-l); border:1px solid var(--purple-m); color:var(--purple); }
+  .stat-card.amber  .stat-icon { background:var(--amber-l);  border:1px solid var(--amber-m);  color:var(--amber); }
+  .stat-label { font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); font-weight:600; margin-bottom:6px; }
+  .stat-value { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:var(--text); line-height:1; margin-bottom:4px; }
+  .stat-sub { font-size:0.72rem; color:var(--muted); }
+
+  /* Panels */
+  .section-row { display:grid; grid-template-columns:1.4fr 1fr; gap:18px; }
+  .panel { background:var(--white); border:1px solid var(--border); border-radius:16px; padding:28px; }
+  .panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+  .panel-title { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text); }
+  .panel-tag {
+    font-size:0.65rem; color:var(--muted); background:var(--surface);
+    border:1px solid var(--border); padding:3px 10px; border-radius:20px;
+    letter-spacing:0.08em; text-transform:uppercase; font-weight:600;
+  }
+  .info-row { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid var(--border); }
+  .info-row:last-child { border-bottom:none; padding-bottom:0; }
+  .info-row:first-child { padding-top:0; }
+  .info-key { font-size:0.78rem; color:var(--muted); font-weight:500; display:flex; align-items:center; gap:8px; }
+  .info-key-dot { width:5px; height:5px; border-radius:50%; background:var(--blue-m); flex-shrink:0; }
+  .info-val { font-size:0.88rem; font-weight:600; color:var(--text); text-align:right; max-width:200px; word-break:break-word; }
+  .pill { display:inline-flex; align-items:center; gap:5px; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; }
+  .pill.completed { background:var(--green-l); border:1px solid var(--green-m); color:var(--green); }
+  .pill.pending   { background:var(--amber-l); border:1px solid var(--amber-m); color:var(--amber); }
+  .pill.failed    { background:var(--rose-l);  border:1px solid var(--rose-m);  color:var(--rose); }
+  .pill.default   { background:var(--blue-l);  border:1px solid var(--blue-m);  color:var(--blue); }
+  .pill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+  .bar-row { width:100%; display:flex; flex-direction:column; gap:5px; }
+  .bar-meta { display:flex; justify-content:space-between; font-size:0.72rem; color:var(--muted); }
+  .bar-track { height:6px; background:var(--surface); border-radius:3px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,var(--blue),#60a5fa); width:0%; transition:width 1.4s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Gauge */
+  .score-panel { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:18px; }
+  .gauge-wrap { position:relative; width:150px; height:150px; }
+  .gauge-svg { width:150px; height:150px; transform:rotate(-90deg); }
+  .gauge-bg   { fill:none; stroke:var(--surface); stroke-width:12; }
+  .gauge-fill { fill:none; stroke-width:12; stroke-linecap:round; stroke:url(#gaugeGrad); stroke-dasharray:408; stroke-dashoffset:408; transition:stroke-dashoffset 1.4s cubic-bezier(0.4,0,0.2,1); }
+  .gauge-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .gauge-score { font-family:'Syne',sans-serif; font-size:1.9rem; font-weight:800; color:var(--text); line-height:1; }
+  .gauge-label { font-size:0.65rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; font-weight:600; margin-top:3px; }
+  .score-title { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:800; color:var(--text); }
+  .score-desc { font-size:0.78rem; color:var(--muted); line-height:1.5; }
+
+  /* Timeline */
+  .timeline { display:flex; flex-direction:column; gap:0; }
+  .tl-item { display:flex; gap:14px; padding-bottom:18px; position:relative; }
+  .tl-item:last-child { padding-bottom:0; }
+  .tl-item::before { content:''; position:absolute; left:13px; top:28px; bottom:0; width:1px; background:var(--border); }
+  .tl-item:last-child::before { display:none; }
+  .tl-dot {
+    width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; font-family:'Syne',sans-serif; font-size:0.6rem; font-weight:800; position:relative; z-index:1;
+  }
+  .tl-dot.info  { background:var(--blue-l);  border:1px solid var(--blue-m);  color:var(--blue); }
+  .tl-dot.done  { background:var(--green-l); border:1px solid var(--green-m); color:var(--green); }
+  .tl-dot.warn  { background:var(--amber-l); border:1px solid var(--amber-m); color:var(--amber); }
+  .tl-title { font-size:0.82rem; font-weight:600; color:var(--text); margin-bottom:2px; }
+  .tl-time  { font-size:0.7rem; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="brand"><div class="brand-dot"></div> ExamPortal</div>
+      <div class="avatar-wrap">
+        <div class="avatar-ring"><div class="avatar-inner">S</div></div>
+        <div class="avatar-status"></div>
+        <div class="avatar-name" id="sidebarName">Student</div>
+        <div class="avatar-email" id="sidebarEmail">—</div>
+        <div class="avatar-badge">Active Student</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Navigation</div>
+      <div class="nav-item active"><span class="nav-icon ni-p">P</span> My Profile</div>
+      <div class="nav-item"><span class="nav-icon ni-e">E</span> My Exams</div>
+      <div class="nav-item"><span class="nav-icon ni-r">R</span> Results</div>
+    </nav>
+    <div class="sidebar-bottom">
+      <a href="javascript:history.back()" class="btn-back">Back to Dashboard</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title">Student <span>Profile</span></div>
+      <div class="live-chip"><div class="chip-dot"></div> Session Active</div>
+    </div>
+
+    <div class="content">
+      <div>
+        <div class="section-label">Overview</div>
+        <div class="stat-row">
+          <div class="stat-card purple">
+            <div class="stat-icon">SCORE</div>
+            <div class="stat-label">Exam Score</div>
+            <div class="stat-value" id="scoreTop">—</div>
+            <div class="stat-sub">Out of 100 marks</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">STATUS</div>
+            <div class="stat-label">Exam Status</div>
+            <div class="stat-value" style="font-size:1rem;padding-top:6px;" id="statusTop">—</div>
+            <div class="stat-sub">Current standing</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">DATE</div>
+            <div class="stat-label">Profile Since</div>
+            <div class="stat-value" style="font-size:1rem;">Today</div>
+            <div class="stat-sub">Account registered</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-row">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Student Information</div>
+            <div class="panel-tag">Official Record</div>
+          </div>
+          <div class="info-row">
+            <div class="info-key"><span class="info-key-dot"></span>Full Name</div>
+            <div class="info-val" id="infoName">—</div>
+          </div>
+          <div class="info-row">
+            <div class="info-key"><span class="info-key-dot"></span>Email Address</div>
+            <div class="info-val" id="infoEmail">—</div>
+          </div>
+          <div class="info-row">
+            <div class="info-key"><span class="info-key-dot"></span>Exam Status</div>
+            <div class="info-val"><span class="pill default" id="infoPill">—</span></div>
+          </div>
+          <div class="info-row">
+            <div class="info-key"><span class="info-key-dot"></span>Final Score</div>
+            <div class="info-val" id="infoScore">—</div>
+          </div>
+          <div class="info-row">
+            <div class="info-key"><span class="info-key-dot"></span>Score Progress</div>
+            <div class="info-val" style="width:100%;max-width:160px;">
+              <div class="bar-row">
+                <div class="bar-meta"><span>0</span><span id="barPct">—</span></div>
+                <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel score-panel">
+          <svg style="width:0;height:0;position:absolute;">
+            <defs>
+              <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%"   stop-color="#2563eb"/>
+                <stop offset="100%" stop-color="#60a5fa"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="gauge-wrap">
+            <svg class="gauge-svg" viewBox="0 0 160 160">
+              <circle class="gauge-bg"   cx="80" cy="80" r="65"/>
+              <circle class="gauge-fill" cx="80" cy="80" r="65" id="gaugeFill"/>
+            </svg>
+            <div class="gauge-center">
+              <div class="gauge-score" id="gaugeNum">—</div>
+              <div class="gauge-label">Score</div>
+            </div>
+          </div>
+          <div class="score-title">Performance Overview</div>
+          <div class="score-desc" id="scoreDesc">Your exam result will appear here once evaluation is complete.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Activity Timeline</div>
+          <div class="panel-tag">Recent</div>
+        </div>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot info">i</div>
+            <div><div class="tl-title">Profile Loaded</div><div class="tl-time">Just now</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot done">OK</div>
+            <div><div class="tl-title">Exam session recorded</div><div class="tl-time">Earlier today</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot warn">!</div>
+            <div><div class="tl-title" id="tlStatusLine">Result status pending</div><div class="tl-time">Awaiting evaluation</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+var p = new URLSearchParams(window.location.search);
+var name   = p.get('name')   || 'N/A';
+var email  = p.get('email')  || 'N/A';
+var status = p.get('status') || 'N/A';
+var score  = p.get('score')  || 'N/A';
+
+document.getElementById('sidebarName').textContent  = name;
+document.getElementById('sidebarEmail').textContent = email;
+document.getElementById('infoName').textContent     = name;
+document.getElementById('infoEmail').textContent    = email;
+document.getElementById('infoScore').textContent    = isNaN(parseFloat(score)) ? score : score + ' / 100';
+
+var pill = document.getElementById('infoPill');
+var s = status.toLowerCase();
+pill.innerHTML = '<span class="pill-dot"></span>' + status;
+pill.className = 'pill ' + (s.includes('complet')||s.includes('pass') ? 'completed' : s.includes('pend')||s.includes('progress') ? 'pending' : s.includes('fail') ? 'failed' : 'default');
+
+document.getElementById('scoreTop').textContent = isNaN(parseFloat(score)) ? score : score + ' pts';
+document.getElementById('statusTop').innerHTML  = pill.outerHTML;
+
+var n = parseFloat(score);
+if (!isNaN(n)) {
+  var pct = Math.min(n, 100);
+  document.getElementById('gaugeNum').textContent = n;
+  document.getElementById('barPct').textContent   = pct + '%';
+  var offset = 2 * Math.PI * 65 * (1 - pct / 100);
+  setTimeout(function() {
+    document.getElementById('gaugeFill').style.strokeDashoffset = offset;
+    document.getElementById('barFill').style.width = pct + '%';
+  }, 400);
+  document.getElementById('scoreDesc').textContent =
+    pct >= 80 ? 'Outstanding performance! You are in the top tier.' :
+    pct >= 60 ? 'Good result! You passed with a solid score.' :
+    pct >= 40 ? 'You passed, but there is room to improve.' :
+                'You did not reach the passing threshold.';
+  document.getElementById('tlStatusLine').textContent =
+    s.includes('fail') ? 'Exam result: Failed' :
+    (s.includes('complet')||s.includes('pass')) ? 'Exam result: Passed' :
+    'Result status: ' + status;
+} else {
+  document.getElementById('gaugeNum').textContent = '—';
+  document.getElementById('barPct').textContent   = 'N/A';
+}
+</script>
+</body>
+</html>

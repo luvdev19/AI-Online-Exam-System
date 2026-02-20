@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Start Exam</title>
+<script src="/ExamPortal/pages/js/face-api.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f4f6fb;
+    --white:    #ffffff;
+    --surface:  #f0f2f8;
+    --border:   #e2e6f0;
+    --blue:     #2563eb;
+    --blue-d:   #1d4ed8;
+    --blue-l:   #eff6ff;
+    --blue-m:   #bfdbfe;
+    --text:     #0f172a;
+    --text-2:   #334155;
+    --muted:    #64748b;
+    --muted-l:  #94a3b8;
+    --green:    #059669;
+    --green-l:  #ecfdf5;
+    --green-m:  #a7f3d0;
+    --amber:    #d97706;
+    --amber-l:  #fffbeb;
+    --amber-m:  #fde68a;
+    --rose:     #e11d48;
+    --rose-l:   #fff1f2;
+    --rose-m:   #fecdd3;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
+
+  /* ── Topbar ── */
+  .topbar {
+    position:sticky; top:0; z-index:20;
+    background:var(--white); border-bottom:1px solid var(--border);
+    padding:0 48px; height:62px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .brand {
+    font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:800;
+    letter-spacing:0.07em; text-transform:uppercase; color:var(--blue);
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand-dot { width:8px; height:8px; border-radius:50%; background:var(--blue); }
+  .topbar-center { display:flex; align-items:center; gap:16px; }
+
+  /* Timer */
+  .timer-box {
+    display:flex; align-items:center; gap:10px;
+    background:var(--white); border:1.5px solid var(--border);
+    border-radius:12px; padding:8px 20px;
+  }
+  .timer-label { font-size:0.66rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+  #timer {
+    font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800;
+    color:var(--text); min-width:52px; text-align:center; transition:color 0.3s;
+  }
+  #timer.warn   { color:var(--amber); }
+  #timer.danger { color:var(--rose); animation:pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.45} }
+
+  /* Strike dots */
+  .strikes { display:flex; align-items:center; gap:7px; }
+  .s-label { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-right:2px; }
+  .s-dot {
+    width:13px; height:13px; border-radius:50%;
+    background:var(--border); border:1.5px solid var(--muted-l); transition:all 0.3s;
+  }
+  .s-dot.hit { background:var(--rose); border-color:var(--rose); box-shadow:0 0 8px rgba(225,29,72,0.45); }
+
+  /* Live pill */
+  .live-pill {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:5px 14px; border-radius:20px;
+    background:var(--rose-l); border:1px solid var(--rose-m);
+    color:var(--rose); font-size:0.68rem; font-weight:700; letter-spacing:0.06em;
+  }
+  .live-dot { width:6px; height:6px; border-radius:50%; background:var(--rose); animation:blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+
+  /* ── Page layout ── */
+  .page {
+    max-width:1160px; margin:0 auto;
+    padding:32px 48px 60px;
+    display:grid;
+    grid-template-columns:1fr 296px;
+    gap:24px;
+    align-items:start;
+  }
+
+  /* ── Left: questions ── */
+  .questions-col { display:flex; flex-direction:column; gap:18px; }
+
+  .col-label {
+    font-family:'Syne',sans-serif; font-size:0.68rem; font-weight:800;
+    letter-spacing:0.18em; text-transform:uppercase; color:var(--muted);
+    display:flex; align-items:center; gap:10px; margin-bottom:4px;
+  }
+  .col-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* Loading placeholder */
+  .q-loading {
+    background:var(--white); border:1px solid var(--border);
+    border-radius:16px; padding:48px; text-align:center;
+    color:var(--muted); font-size:0.88rem;
+  }
+  .loader {
+    display:inline-block; width:18px; height:18px;
+    border:2px solid var(--border); border-top-color:var(--blue);
+    border-radius:50%; animation:spin 0.8s linear infinite;
+    vertical-align:middle; margin-right:8px;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* Question card */
+  .q-card {
+    background:var(--white); border:1px solid var(--border);
+    border-radius:16px; padding:26px 28px;
+    position:relative; overflow:hidden;
+  }
+  .q-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg,var(--blue),#60a5fa);
+  }
+  .q-num { font-size:0.64rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--blue); margin-bottom:10px; }
+  .q-text { font-size:0.96rem; font-weight:600; color:var(--text); line-height:1.6; margin-bottom:20px; }
+
+  /* Options */
+  .options { display:flex; flex-direction:column; gap:10px; }
+  .opt {
+    display:flex; align-items:center; gap:12px;
+    padding:12px 16px; border-radius:10px;
+    border:1.5px solid var(--border); background:var(--surface);
+    cursor:pointer; transition:all 0.18s; font-size:0.88rem; color:var(--text-2);
+    position:relative;
+  }
+  .opt:hover { border-color:var(--blue-m); background:var(--blue-l); color:var(--text); }
+  /* hide native radio */
+  .opt input[type="radio"] { position:absolute; opacity:0; width:0; height:0; }
+  .opt-circle {
+    width:18px; height:18px; border-radius:50%;
+    border:2px solid var(--muted-l); flex-shrink:0; transition:all 0.18s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .opt.selected { border-color:var(--blue); background:var(--blue-l); color:var(--text); font-weight:600; }
+  .opt.selected .opt-circle { border-color:var(--blue); background:var(--blue); }
+  .opt-pip { width:7px; height:7px; border-radius:50%; background:white; display:none; }
+  .opt.selected .opt-pip { display:block; }
+
+  /* Submit button */
+  .btn-submit {
+    width:100%; padding:15px; cursor:pointer;
+    font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:800;
+    letter-spacing:0.06em; color:var(--white); border:none; border-radius:14px;
+    background:linear-gradient(135deg,var(--blue) 0%,var(--blue-d) 100%);
+    position:relative; overflow:hidden; transition:all 0.25s;
+    box-shadow:0 4px 20px rgba(37,99,235,0.3),0 1px 0 rgba(255,255,255,0.12) inset;
+    margin-top:6px;
+  }
+  .btn-submit::before {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg,rgba(255,255,255,0.14),transparent 60%);
+    opacity:0; transition:opacity 0.25s;
+  }
+  .btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(37,99,235,0.4); }
+  .btn-submit:hover::before { opacity:1; }
+  .btn-submit:active { transform:translateY(0); }
+
+  /* ── Right: camera + status ── */
+  .right-col { display:flex; flex-direction:column; gap:16px; position:sticky; top:78px; }
+
+  .camera-card { background:var(--white); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .camera-head {
+    padding:13px 18px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .camera-title { font-family:'Syne',sans-serif; font-size:0.82rem; font-weight:800; color:var(--text); }
+  .cam-badge {
+    font-size:0.62rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+    padding:3px 10px; border-radius:20px;
+  }
+  .cam-badge.ok  { background:var(--green-l); border:1px solid var(--green-m); color:var(--green); }
+  .cam-badge.err { background:var(--rose-l);  border:1px solid var(--rose-m);  color:var(--rose); }
+  .camera-body { background:#000; position:relative; }
+  #video { width:100%; height:auto; display:block; }
+  .cam-overlay {
+    position:absolute; bottom:10px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.5); border-radius:8px; padding:3px 12px;
+    font-size:0.62rem; font-weight:700; letter-spacing:0.1em;
+    text-transform:uppercase; color:rgba(255,255,255,0.75);
+  }
+
+  /* Status card */
+  .status-card {
+    background:var(--white); border:1px solid var(--border);
+    border-radius:16px; padding:18px 20px;
+    display:flex; flex-direction:column; gap:13px;
+  }
+  .status-row { display:flex; align-items:center; justify-content:space-between; font-size:0.78rem; }
+  .status-key { color:var(--muted); font-weight:500; }
+  .status-val { font-weight:700; color:var(--text); }
+  .status-val.green { color:var(--green); }
+  .status-val.rose  { color:var(--rose); }
+  .status-val.amber { color:var(--amber); }
+
+  /* Toast */
+  .toast-wrap { position:fixed; top:24px; right:24px; z-index:100; display:flex; flex-direction:column; gap:10px; }
+  .toast {
+    display:flex; align-items:center; gap:12px;
+    background:var(--white); border:1.5px solid var(--rose-m);
+    border-radius:12px; padding:14px 18px;
+    box-shadow:0 8px 30px rgba(225,29,72,0.1);
+    font-size:0.86rem; font-weight:600; color:var(--text); min-width:300px;
+    animation:tin 0.3s ease, tout 0.4s ease 3.5s forwards;
+    overflow:hidden; position:relative;
+  }
+  .toast::after { content:''; position:absolute; bottom:0; left:0; height:3px; width:100%; background:var(--rose); animation:shrink 4s linear forwards; }
+  .toast-icon {
+    width:28px; height:28px; border-radius:8px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Syne',sans-serif; font-size:0.58rem; font-weight:800;
+    background:var(--rose-l); border:1px solid var(--rose-m); color:var(--rose);
+  }
+  .toast-title { font-family:'Syne',sans-serif; font-size:0.8rem; font-weight:800; color:var(--rose); margin-bottom:1px; }
+  .toast-msg   { font-size:0.75rem; color:var(--muted); }
+  @keyframes tin    { from{transform:translateX(120px);opacity:0} to{transform:translateX(0);opacity:1} }
+  @keyframes tout   { from{opacity:1} to{opacity:0;transform:translateX(40px)} }
+  @keyframes shrink { from{width:100%} to{width:0%} }
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="brand"><div class="brand-dot"></div> ExamPortal</div>
+
+  <div class="topbar-center">
+    <div class="timer-box">
+      <div class="timer-label">Time Left</div>
+      <div id="timer">4:00</div>
+    </div>
+    <div class="strikes">
+      <div class="s-label">Strikes</div>
+      <div class="s-dot" id="s1"></div>
+      <div class="s-dot" id="s2"></div>
+      <div class="s-dot" id="s3"></div>
+    </div>
+  </div>
+
+  <div class="live-pill"><div class="live-dot"></div> Live Proctoring</div>
+</div>
+
+<!-- Page -->
+<div class="page">
+
+  <!-- Questions -->
+  <div class="questions-col">
+    <div class="col-label">Questions</div>
+    <div id="q-wrap">
+      <div class="q-loading"><span class="loader"></span> Loading your exam…</div>
+    </div>
+
+    <form action="/ExamPortal/SubmitExamServlet" method="post" onsubmit="manualSubmit()" id="examForm">
+      <div id="questions"></div>
+      <button type="submit" class="btn-submit">Submit Exam</button>
+    </form>
+  </div>
+
+  <!-- Right column -->
+  <div class="right-col">
+
+    <div class="camera-card">
+      <div class="camera-head">
+        <div class="camera-title">Proctoring Camera</div>
+        <div class="cam-badge ok" id="camBadge">Active</div>
+      </div>
+      <div class="camera-body">
+        <video id="video" autoplay muted playsinline></video>
+        <div class="cam-overlay">Live Feed</div>
+      </div>
+    </div>
+
+    <div class="status-card">
+      <div class="status-row">
+        <div class="status-key">Exam Status</div>
+        <div class="status-val green" id="sv-status">In Progress</div>
+      </div>
+      <div class="status-row">
+        <div class="status-key">Face Detection</div>
+        <div class="status-val green" id="sv-face">Detected</div>
+      </div>
+      <div class="status-row">
+        <div class="status-key">Tab Switches</div>
+        <div class="status-val" id="sv-tabs">0</div>
+      </div>
+      <div class="status-row">
+        <div class="status-key">Violations</div>
+        <div class="status-val" id="sv-strikes">0 / 3</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Shared state ──────────────────────────────────────────────
+let strike = 0;
+var isManualSubmit = false;
+var tabCount = 0;
+
+function manualSubmit() {
+  isManualSubmit = true;
+}
+
+// ── Strike UI ─────────────────────────────────────────────────
+function updateStrikeUI() {
+  for (var i = 1; i <= 3; i++) {
+    document.getElementById('s' + i).classList.toggle('hit', i <= strike);
+  }
+  document.getElementById('sv-strikes').textContent = strike + ' / 3';
+  if (strike > 0) document.getElementById('sv-strikes').className = 'status-val rose';
+}
+
+// ── Toast (replaces alert) ────────────────────────────────────
+function showToast(title, msg) {
+  var wrap  = document.getElementById('toastWrap');
+  var t     = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = '<div class="toast-icon">WARN</div>'
+              + '<div><div class="toast-title">' + title + '</div>'
+              + '<div class="toast-msg">' + msg + '</div></div>';
+  wrap.appendChild(t);
+  setTimeout(function() { t.remove(); }, 4200);
+}
+
+// ── LOAD QUESTIONS ────────────────────────────────────────────
+fetch('/ExamPortal/StartExamServlet')
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    var wrap = document.getElementById('q-wrap');
+    wrap.innerHTML = '';
+
+    var html = '';
+    data.forEach(function(q, idx) {
+      html += '<div class="q-card">'
+            + '<div class="q-num">Question ' + (idx + 1) + ' of ' + data.length + '</div>'
+            + '<div class="q-text">' + q.question + '</div>'
+            + '<div class="options">'
+            + makeOpt(q.qid, q.op1)
+            + makeOpt(q.qid, q.op2)
+            + makeOpt(q.qid, q.op3)
+            + makeOpt(q.qid, q.op4)
+            + '</div></div>';
+    });
+
+    document.getElementById('questions').innerHTML = html;
+
+    // styled radio click
+    document.querySelectorAll('.opt').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var name = el.querySelector('input').name;
+        document.querySelectorAll('input[name="' + name + '"]').forEach(function(inp) {
+          inp.closest('.opt').classList.remove('selected');
+        });
+        el.classList.add('selected');
+        el.querySelector('input').checked = true;
+      });
+    });
+  })
+  .catch(function() {
+    document.getElementById('q-wrap').innerHTML =
+      '<div class="q-loading">Could not load questions. Please refresh.</div>';
+  });
+
+function makeOpt(qid, val) {
+  return '<div class="opt">'
+       + '<input type="radio" name="' + qid + '" value="' + val + '">'
+       + '<div class="opt-circle"><div class="opt-pip"></div></div>'
+       + val + '</div>';
+}
+
+// ── TIMER ─────────────────────────────────────────────────────
+var time = 240;
+var timerEl = document.getElementById('timer');
+
+function fmt(s) {
+  var m = Math.floor(s / 60), sec = s % 60;
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+setInterval(function() {
+  if (time <= 0) { document.forms[0].submit(); return; }
+  timerEl.textContent = fmt(time);
+  timerEl.className   = time <= 30 ? 'danger' : time <= 60 ? 'warn' : '';
+  time--;
+}, 1000);
+
+// ── CAMERA ───────────────────────────────────────────────────
+const video = document.getElementById('video');
+
+navigator.mediaDevices.getUserMedia({ video: true })
+  .then(function(stream) {
+    video.srcObject = stream;
+    video.onloadedmetadata = function() { startFaceCheck(); };
+  })
+  .catch(function(err) {
+    giveStrike("Camera Denied");
+    document.getElementById('camBadge').textContent = 'Denied';
+    document.getElementById('camBadge').className   = 'cam-badge err';
+  });
+
+// ── STRIKE FUNCTION ───────────────────────────────────────────
+function giveStrike(reason) {
+  strike++;
+  updateStrikeUI();
+  showToast('Warning ' + strike + ' of 3', reason);
+  captureImage(reason);
+  if (strike >= 3) {
+    showToast('Exam Auto-Submitted', '3 violations reached.');
+    document.getElementById('sv-status').textContent = 'Auto-Submitted';
+    document.getElementById('sv-status').className   = 'status-val rose';
+    setTimeout(function() { document.forms[0].submit(); }, 1800);
+  }
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────
+document.addEventListener("visibilitychange", function() {
+  if (document.hidden && !isManualSubmit) {
+    tabCount++;
+    document.getElementById('sv-tabs').textContent = tabCount;
+    document.getElementById('sv-tabs').className   = 'status-val rose';
+    giveStrike("Tab Switch Detected");
+  }
+});
+
+// ── FACE DETECTION ────────────────────────────────────────────
+async function startFaceCheck() {
+  await faceapi.nets.ssdMobilenetv1.loadFromUri('/ExamPortal/models');
+  setInterval(async () => {
+    const detections = await faceapi.detectAllFaces(video);
+    var faceEl = document.getElementById('sv-face');
+    if (detections.length == 0 && !isManualSubmit) {
+      faceEl.textContent = 'Not Detected';
+      faceEl.className   = 'status-val rose';
+      giveStrike("Face Not Detected");
+    } else if (detections.length > 0) {
+      faceEl.textContent = 'Detected';
+      faceEl.className   = 'status-val green';
+    }
+  }, 5000);
+}
+
+// ── SNAPSHOT ──────────────────────────────────────────────────
+function captureImage(reason) {
+  let canvas = document.createElement("canvas");
+  canvas.width  = 300;
+  canvas.height = 200;
+  let ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0, 300, 200);
+  let image = canvas.toDataURL("image/png");
+  fetch("/ExamPortal/SnapshotServlet", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: "image=" + encodeURIComponent(image) + "&reason=" + encodeURIComponent(reason)
+  });
+}
+</script>
+
+</body>
+</html>
